@@ -1,4 +1,4 @@
-import { useControls } from 'leva';
+"use client";
 import React, { useState, useEffect } from 'react';
 
 // Define a type for the component props

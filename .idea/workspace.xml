@@ -7,6 +7,7 @@
     <list default="true" id="34b7fda0-f2f9-49cb-8a3c-5f473e693437" name="Changes" comment="">
       <change afterPath="$PROJECT_DIR$/.idea/discord.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/docs/preview.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/lib/notion-connector.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.yarn/cache/@babel-code-frame-npm-7.23.5-cb10d08de6-d90981fdf5.zip" beforeDir="false" />
@@ -72,10 +73,14 @@
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app/globals.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/globals.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/layout.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/ui/card.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ui/card.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/widgets/background.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/widgets/background.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/widgets/news.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/widgets/news.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/widgets/time.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/widgets/time.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/widgets/weather.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/widgets/weather.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/widgets/widget-wrapper.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/widgets/widget-wrapper.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -174,12 +179,24 @@
       <option name="presentableId" value="Default" />
       <updated>1706899200462</updated>
       <workItem from="1706899201476" duration="44149000" />
-      <workItem from="1707250459709" duration="2610000" />
+      <workItem from="1707250459709" duration="14847000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/lib/notion-connector.ts</url>
+          <line>13</line>
+          <properties lambdaOrdinal="-1" />
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

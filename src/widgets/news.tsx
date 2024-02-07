@@ -21,6 +21,7 @@ const feeds = [
 
 const fetchArticlesFromFeed = async (feed_ids: string[], {limit = 50, page = 1, sort = 'latest'} = {}): Promise<NewsItem[]> => {
   try {
+    console.log('Fetching RSS feed');
     const result = await axios.get('https://api-panda.com/v4/articles', {
       params: { feeds: feed_ids.join(','), limit, page, sort }
     });
@@ -88,16 +89,11 @@ export const NewsWidget: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    const fetchRssFeed = async () => {
-      try {
-        const articles = await fetchArticlesFromFeed(feeds);
-        setNewsItems(articles);
-      } catch (error) {
-        console.error('Error fetching RSS feed:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    const articles = fetchArticlesFromFeed(feeds).then((articles) => {
+      console.log('Articles:', articles);
+      setNewsItems(articles);
+      setIsLoading(false);
+    });
   }, []);
 
   if (isLoading) {

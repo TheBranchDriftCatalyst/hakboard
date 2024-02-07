@@ -1,5 +1,5 @@
 "use client";
-import { useControls } from 'leva';
+
 import { useEffect, useState } from 'react';
 import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
 import WidgetWrapper from "@/widgets/widget-wrapper";
@@ -95,9 +95,8 @@ export const WeatherWidget = ({lat = 39.7392, long = -104.9903}: WeatherWidgetPr
   const ConditionIcon = WeatherConditionCodes[id] || CloudSun; // TODO: not a fan of this
 
   return (
-    <Card className="w-64">
       <CardContent>
-        <div className="grid">
+        <div>
 
 
           <div className="flex flex-row space-x-1">
@@ -111,7 +110,7 @@ export const WeatherWidget = ({lat = 39.7392, long = -104.9903}: WeatherWidgetPr
             <div>{description}</div>
           </div>
 
-          <div className="shrink"> <Wind className="inline" /> <span>{wind_speed} {wind_gust != 0 && wind_gust} mph</span></div>
+          <div className="shrink"> <Wind className="inline" /> <span>{wind_speed} {wind_gust != 0 && `(${wind_gust})`} mph</span></div>
 
 
           {/*<div className="flex">*/}
@@ -122,11 +121,6 @@ export const WeatherWidget = ({lat = 39.7392, long = -104.9903}: WeatherWidgetPr
           {/*</div>*/}
         </div>
       </CardContent>
-      {/*<CardFooter className="flex justify-between">*/}
-      {/*  <Button variant="outline">Cancel</Button>*/}
-      {/*  <Button>Deploy</Button>*/}
-      {/*</CardFooter>*/}
-    </Card>
   );
 };
 

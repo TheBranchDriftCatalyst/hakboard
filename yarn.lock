@@ -890,6 +890,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/debug@npm:^4.1.12":
+  version: 4.1.12
+  resolution: "@types/debug@npm:4.1.12"
+  dependencies:
+    "@types/ms": "*"
+  checksum: 47876a852de8240bfdaf7481357af2b88cb660d30c72e73789abf00c499d6bc7cd5e52f41c915d1b9cd8ec9fef5b05688d7b7aef17f7f272c2d04679508d1053
+  languageName: node
+  linkType: hard
+
 "@types/json5@npm:^0.0.29":
   version: 0.0.29
   resolution: "@types/json5@npm:0.0.29"
@@ -908,6 +917,13 @@ __metadata:
   version: 3.4.2
   resolution: "@types/luxon@npm:3.4.2"
   checksum: 6f92d5bd02e89f310395753506bcd9cef3a56f5940f7a50db2a2b9822bce753553ac767d143cb5b4f9ed5ddd4a84e64f89ff538082ceb4d18739af7781b56925
+  languageName: node
+  linkType: hard
+
+"@types/ms@npm:*":
+  version: 0.7.34
+  resolution: "@types/ms@npm:0.7.34"
+  checksum: f38d36e7b6edecd9badc9cf50474159e9da5fa6965a75186cceaf883278611b9df6669dc3a3cc122b7938d317b68a9e3d573d316fcb35d1be47ec9e468c6bd8a
   languageName: node
   linkType: hard
 
@@ -2979,6 +2995,7 @@ __metadata:
     "@radix-ui/react-toast": ^1.1.5
     "@tailwindcss/typography": ^0.5.10
     "@types/axios": ^0.14.0
+    "@types/debug": ^4.1.12
     "@types/lodash": ^4.14.202
     "@types/luxon": ^3.4.2
     "@types/node": ^20
@@ -2991,6 +3008,7 @@ __metadata:
     browser-sync-webpack-plugin: ^2.3.0
     class-variance-authority: ^0.7.0
     clsx: ^2.1.0
+    debug: ^4.3.4
     dropbox: ^10.34.0
     eslint: ^8
     eslint-config-next: 14.1.0

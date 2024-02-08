@@ -11,6 +11,7 @@ import mockWeatherResponse from '@/lib/open-weather-api-resp';
 import {WeatherConditionCodes, WeatherDatumIFace, WeatherDTOIFace as OpenWeatherDTO} from "@/lib/open-weather-dtos";
 import {DateTime}  from 'luxon';
 import axios from 'axios';
+import { Button } from '@/components/ui/button';
 
 // export const WeatherIconMapping = {
 //   sunrise: <Sunrise />,
@@ -29,7 +30,7 @@ const defaultProps: WeatherWidgetProps = {
   long: -104.9903
 }
 
-const fetchWeather = async (long: number, lat: number): Promise<OpenWeatherDTO> => {
+const fetchWeather = async (long: number | undefined, lat: number | undefined): Promise<OpenWeatherDTO> => {
   console.log('Fetching weather data');
   const baseUrl: string = "https://api.openweathermap.org/data/3.0/onecall";
   const apiKey = process.env.NEXT_PUBLIC_OPEN_WEATHER_API_KEY;
@@ -125,7 +126,7 @@ export const WeatherWidget = ({lat, long}: WeatherWidgetProps = defaultProps) =>
 
           <div className="shrink"> <Wind className="inline" /> <span>{wind_speed} {wind_gust != 0 && `(${wind_gust})`} mph</span></div>
 
-
+          {/* <Button className="draggable-cancel" onClick={() => fetchWeather(long, lat)}>Refresh</Button> */}
           {/*<div className="flex">*/}
           {/*  <Sunrise className="inline" />*/}
           {/*  <span>{formatTime(new Date(sunrise))}</span>*/}

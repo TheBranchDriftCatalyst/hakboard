@@ -2,7 +2,7 @@
 
 import React, {useEffect, useState} from 'react';
 import axios from 'axios';
-import {parseString} from 'xml2js'; // TODO remove this dependency
+// import {parseString} from 'xml2js'; // TODO remove this dependency
 import {Card, CardContent} from "@/components/ui/card";
 
 // interface NewsWidgetProps {

@@ -33,8 +33,6 @@ interface WidgetGridProps extends React.HTMLAttributes<HTMLElement> {
   children?: React.ReactNode;
 }
 
-// const gridForwardedRefs = ["style, className, onMouseDown, onMouseUp", "onTouchEnd", 'children']
-
 // Refactor WidgetWrapper to handle default props of WrappedWidget
 const WidgetWrapper = <T extends object>(
   WrappedWidget: ComponentType<T>,

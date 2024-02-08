@@ -4,6 +4,7 @@ import React, {useEffect, useState} from 'react';
 import axios from 'axios';
 // import {parseString} from 'xml2js'; // TODO remove this dependency
 import {Card, CardContent} from "@/components/ui/card";
+import WidgetWrapper from './widget-wrapper';
 
 // interface NewsWidgetProps {
 //   feed_bundle_url?: string;
@@ -84,7 +85,7 @@ interface Urls {
   target: string;
 }
 
-export const NewsWidget: React.FC = () => {
+export const NewsWidget= () => {
   const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -96,24 +97,24 @@ export const NewsWidget: React.FC = () => {
     });
   }, []);
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+  // if (isLoading) {
+  //   return <div>Loading...</div>;
+  // }
 
   return (
-    <Card className="w-96">
       <CardContent>
-        {newsItems.map((item, index) => (
-          <div key={index} className="mb-4">
+        <div>
+          {newsItems.map((item, index) => (
+          <div key={index} className="mb-2">
             <a href={item.url.target} target="_blank" rel="noreferrer">
               <h3 className="text-lg font-bold">{item.title}</h3>
             </a>
             <p>{item.description}</p>
           </div>
         ))}
+        </div>
       </CardContent>
-    </Card>
   );
 };
 
-export default NewsWidget;
+export default WidgetWrapper(NewsWidget, {});

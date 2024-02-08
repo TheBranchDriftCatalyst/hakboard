@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { omit } from "lodash";
 import { Button } from "@/components/ui/button";
 import { useControls } from "leva";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 // Component is a HOC that wraps the widget components themselves.
 // It handles saving and reloading the props for each widget to local storage.
@@ -56,11 +57,13 @@ const WidgetWrapper = <T extends object>(
 
       return (
         <Card ref={ref} {...props}>
+          <ScrollArea className="h-full w-full">
           <CardContent>
             <Suspense fallback={<LoadingWidget />}>
-              <WrappedWidget {...widgetProps} />
+                <WrappedWidget {...widgetProps} />
             </Suspense>
           </CardContent>
+          </ScrollArea>
           {props.children}
         </Card>
       );

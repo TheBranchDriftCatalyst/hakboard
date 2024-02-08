@@ -4,7 +4,7 @@ import Text from "@/widgets/text";
 // import { Leva } from "leva";
 import WeatherWidget from "@/widgets/weather";
 import TimeWidget from "@/widgets/time";
-import { NewsWidget } from "@/widgets/news";
+import NewsWidget from "@/widgets/news";
 // import GridLayout from 'react-grid-layout';
 import GridLayout, {
   Layout,
@@ -31,6 +31,7 @@ const defaultLayout: Layout[] = [
     i: "weather_widget",
   },
   { w: 11, h: 2, x: 45, y: 0, i: "test_widget" },
+  { w: 20, h: 5, x: 80, y: 2, i: "news_widget" },
 ];
 
 export default function Home() {
@@ -65,7 +66,7 @@ export default function Home() {
         <TimeWidget key="time_widget" />
         <WeatherWidget key="weather_widget" />
         <Card key="test_widget">Pandas are pretty sweet</Card>
-        {/*<NewsWidget key={"news_widget"}/>*/}
+        <NewsWidget key={"news_widget"}/>
       </GridLayout>
       {/*</ResponsiveGridLayout>*/}
       <Background />

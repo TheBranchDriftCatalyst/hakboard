@@ -5,11 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="34b7fda0-f2f9-49cb-8a3c-5f473e693437" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/widgets/time.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/widgets/time.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/widgets/weather.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/widgets/weather.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/widgets/widget-wrapper.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/widgets/widget-wrapper.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -125,7 +124,7 @@
       <updated>1706899200462</updated>
       <workItem from="1706899201476" duration="44149000" />
       <workItem from="1707250459709" duration="15750000" />
-      <workItem from="1707355853909" duration="323000" />
+      <workItem from="1707355853909" duration="1001000" />
     </task>
     <servers />
   </component>
@@ -142,7 +141,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/src/widgets/widget-wrapper.tsx</url>
-          <line>50</line>
+          <line>51</line>
           <option name="timeStamp" value="2" />
         </line-breakpoint>
       </breakpoints>

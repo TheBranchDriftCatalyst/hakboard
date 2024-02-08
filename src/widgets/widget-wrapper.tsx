@@ -1,105 +1,77 @@
 "use client";
 
-import { Wrench } from 'lucide-react';
-import React, {ComponentType, useState, Suspense, forwardRef, useEffect} from 'react';
+import { Wrench } from "lucide-react";
+import React, {
+  ComponentType,
+  useState,
+  Suspense,
+  forwardRef,
+  useEffect,
+  useLayoutEffect,
+} from "react";
 import { JSX } from "react/jsx-runtime";
 import IntrinsicAttributes = JSX.IntrinsicAttributes;
-import { Card, CardContent } from "@/components/ui/card";
-import { useToast } from '@/components/ui/use-toast';
-import { ToastAction } from '@/components/ui/toast';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { useToast } from "@/components/ui/use-toast";
+import { ToastAction } from "@/components/ui/toast";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { omit } from "lodash";
+import { Button } from "@/components/ui/button";
+import { useControls } from "leva";
 
 // Component is a HOC that wraps the widget components themselves.
 // It handles saving and reloading the props for each widget to local storage.
 // It provides an interface (flippable cards) for editing the props of each widget.
 
-interface WidgetGridProps extends React.HTMLAttributes<HTMLElement> {}
+interface WidgetGridProps extends React.HTMLAttributes<HTMLElement> {
+  style?: React.CSSProperties;
+  className?: string;
+  onMouseDown?: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
+  onMouseUp?: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
+  onTouchEnd?: (event: React.TouchEvent<HTMLElement>) => void;
+  children?: React.ReactNode;
+}
 
-// Refactor WidgetWrapper to handle default props of WrappedComponent
-const WidgetWrapper = <T extends object>(WrappedComponent: ComponentType<T>, defaultProps: T) => {
-  // Assume WrappedComponent might have defaultProps
-  // const defaultProps = WrappedComponent.defaultProps;
+// const gridForwardedRefs = ["style, className, onMouseDown, onMouseUp", "onTouchEnd", 'children']
 
-  const WithEditButton = forwardRef<HTMLElement, T>((props, ref) => {
-    // Initialize editProps with defaultProps if they exist, then override with actual props
-    const initialProps = { ...defaultProps, ...props };
-    const [isEditing, setIsEditing] = useState(false);
-    const [editProps, setEditProps] = useState<T>(initialProps);
+// Refactor WidgetWrapper to handle default props of WrappedWidget
+const WidgetWrapper = <T extends object>(
+  WrappedWidget: ComponentType<T>,
+  defaultProps: T
+) => {
+  const WithEditButton = forwardRef<HTMLDivElement, T & WidgetGridProps>(
+    (props, ref) => {
+      const [editableProps, setEditableProps] = useState(defaultProps);
 
-    const toggleEdit = () => setIsEditing(!isEditing);
+      const widgetProps = useControls(WrappedWidget.name, editableProps) as T;
 
-    const { toast } = useToast();
+      const { toast } = useToast();
 
-    const toggleSave = () => {
-      // Save the props to local storage
-      console.log('Saving props to local storage');
-      toast({
-        title: `Saving ${WrappedComponent.name} props`,
-        description: `Saving ${Object.keys(editProps).join(', ')}`,
-      })
-      Object.keys(editProps).forEach((propKey: string) => {
-        const serializedValue = JSON.stringify(initialProps[propKey as keyof typeof initialProps]);
-        console.log('Saving', {propKey, serializedValue, editProps});
-        const localStorageKey = `${WrappedComponent.name}.${propKey}`;
-        localStorage.setItem(localStorageKey, serializedValue);
+      console.log("WidgetWrapper", {
+        WrappedWidget,
+        defaultProps,
+        widgetProps,
+        props,
+        ref,
       });
-    }
 
-    const handleLoad = () => {
-      setTimeout(() => {
-        toast({
-          title: `loading ${WrappedComponent.name} props`,
-          description: `Loading ${Object.keys(editProps).join(', ')}`,
-          action: <ToastAction altText="Try again" onClick={() => console.log("clear local storage") }>todo - clear localstorage</ToastAction>,
-        })
-      }, 300)
-    }
-
-    useEffect(() => {
-      console.log('Loading props from local storage');
-      handleLoad();
-    }, [])
-
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-      const { name, value } = event.target;
-      setEditProps({ ...editProps, [name]: value });
-    };
-
-    if (isEditing) {
       return (
-        <Card className={"group"} ref={ref}>
+        <Card ref={ref} {...props}>
           <CardContent>
-            {Object.entries(editProps).map(([key, value]) => (
-              <div key={key}>
-                <Label htmlFor={key}>{key}</Label>
-                <Input
-                  name={key}
-                  value={value as any}
-                  onChange={handleChange}
-                />
-              </div>
-            ))}
-            <button onClick={toggleEdit}>Done</button>
-            <button onClick={toggleSave}>Save</button>
+            <Suspense fallback={<LoadingWidget />}>
+              <WrappedWidget {...widgetProps} />
+            </Suspense>
           </CardContent>
+          {props.children}
         </Card>
       );
     }
+  );
 
-    return (
-        <Card className={"group"} ref={ref}>
-          <CardContent>
-            <Suspense fallback={<LoadingWidget />}>
-              <WrappedComponent {...editProps} />
-              <button onClick={toggleEdit} className={"hidden group-hover:block content-end"}><Wrench /></button>
-            </Suspense>
-          </CardContent>
-        </Card>
-    );
-  });
-
-  WithEditButton.displayName = `WithEditButton(${WrappedComponent.displayName || WrappedComponent.name || 'Component'})`;
+  WithEditButton.displayName = `WithEditButton(${
+    WrappedWidget.displayName || WrappedWidget.name || "Component"
+  })`;
 
   // It's not necessary to explicitly return defaultProps here as they are handled internally
   return WithEditButton;

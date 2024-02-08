@@ -5,10 +5,10 @@ import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} f
 import WidgetWrapper from "@/widgets/widget-wrapper";
 import {
   CloudHail, Sunrise, Sunset, Haze, Tornado, SunMoon, CloudSun, CloudFog, Snowflake, CloudLightning, Cloud, Cloudy,
-  Wind, Thermometer, CloudRainWind, AlarmSmoke, CloudDrizzle, Sun
+  Wind, Thermometer, CloudRainWind, AlarmSmoke, CloudDrizzle, Sun, LucidePersonStanding
 } from "lucide-react";
 import mockWeatherResponse from '@/lib/open-weather-api-resp';
-import {WeatherConditionCodes, WeatherDatumIFace, WeatherDTOIFace} from "@/lib/open-weather-dtos";
+import {WeatherConditionCodes, WeatherDatumIFace, WeatherDTOIFace as OpenWeatherDTO} from "@/lib/open-weather-dtos";
 import {DateTime}  from 'luxon';
 import axios from 'axios';
 
@@ -29,7 +29,7 @@ const defaultProps: WeatherWidgetProps = {
   long: -104.9903
 }
 
-const fetchWeather = async (long: number, lat: number): Promise<WeatherDTOIFace> => {
+const fetchWeather = async (long: number, lat: number): Promise<OpenWeatherDTO> => {
   console.log('Fetching weather data');
   const baseUrl: string = "https://api.openweathermap.org/data/3.0/onecall";
   const apiKey = process.env.NEXT_PUBLIC_OPEN_WEATHER_API_KEY;
@@ -63,6 +63,7 @@ function formatTime(date: Date) {
 export const WeatherWidget = ({lat, long}: WeatherWidgetProps = defaultProps) => {
 
   const interval = 10 * 60000; // 10 minutes
+  const [isLoading, setIsLoading] = useState(true);
 
   const [
     currentWeather,
@@ -73,7 +74,9 @@ export const WeatherWidget = ({lat, long}: WeatherWidgetProps = defaultProps) =>
     fetchWeather(long, lat).then((weatherData) => {
       console.log('Weather weatherData:', weatherData);
       setCurrentWeather(weatherData.current);
+      setIsLoading(false);
     });
+
   //   const timer = setInterval(() => {
   //     fetchWeather(long, lat).then((data) => {
   //     console.log('Weather data:', data);
@@ -81,7 +84,7 @@ export const WeatherWidget = ({lat, long}: WeatherWidgetProps = defaultProps) =>
   //   }, interval);
   //
   //   return () => clearInterval(timer);
-  }, [interval]);
+  }, [interval, long, lat]);
 
   const  {
     temp,
@@ -99,11 +102,16 @@ export const WeatherWidget = ({lat, long}: WeatherWidgetProps = defaultProps) =>
   // @ts-ignore
   const ConditionIcon = WeatherConditionCodes[id] || CloudSun; // TODO: not a fan of this
 
+  if (isLoading) {
+    return (
+      <CardContent>
+        <div>Loading...</div>
+      </CardContent>
+    )
+  }
+
   return (
       <CardContent>
-        <div>
-
-
           <div className="flex flex-row space-x-1">
             <Thermometer className="shrink"/>
             <span>{temp}&deg;F</span>
@@ -124,7 +132,6 @@ export const WeatherWidget = ({lat, long}: WeatherWidgetProps = defaultProps) =>
           {/*  <Sunset className="inline" />*/}
           {/*  <span>{formatTime(new Date(sunset))}</span>*/}
           {/*</div>*/}
-        </div>
       </CardContent>
   );
 };

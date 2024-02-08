@@ -6,44 +6,58 @@ import WeatherWidget from "@/widgets/weather";
 import TimeWidget from "@/widgets/time";
 import {NewsWidget} from "@/widgets/news";
 // import GridLayout from 'react-grid-layout';
-import GridLayout, {Responsive, WidthProvider} from "react-grid-layout";
+import GridLayout, {Layout, Responsive, WidthProvider} from "react-grid-layout";
 import { Toaster } from "@/components/ui/toaster";
+
+import {Leva} from "leva";
+import { Card } from "@/components/ui/card";
+import { useLayoutEffect, useState } from "react";
+import { set } from "lodash";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
 
+const defaultLayout: Layout[]  = [
+  { i: "time_widget", x: 0, y: 0, w: 2, h: 3 },
+  { i: "weather_widget", x: 1, y: 0, w: 1.25, h: 6 },
+  { i: "test_widget", x: 1, y: 0, w: 1.25, h: 1 },
+];
 
 export default function Home() {
+  const initLayout = localStorage.getItem('layout') || JSON.stringify(defaultLayout);
+  console.log('initLayout', initLayout);
+  const [layout, setLayout] = useState<Layout[]>(JSON.parse(initLayout));
 
-  // TODO: in order to get this working properly we need to define the grid dimensions a bit
-  const layout = [
-      { i: "time_widget", x: 0, y: 0, w: 1, h: 2 },
-      { i: "weather_widget", x: 1, y: 0, w: 3, h: 2 },
-      // { i: "c", x: 4, y: 0, w: 1, h: 2 }
-    ];
+  useLayoutEffect(() => {
+    if (initLayout) {
+      console.log('loading layout from local storage', JSON.parse(initLayout));
+      setLayout(JSON.parse(initLayout));
+    }
+  }, [])
 
+    
   return (
     <main>
-      {/*<ResponsiveGridLayout className="p-2 space-x-2 space-y-2"*/}
-      {/*                      breakpoints={{lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0}}*/}
-      {/*                      cols={{lg: 12, md: 10, sm: 6, xs: 4, xxs: 2}}*/}
-      {/*                      layouts={{lg: layout, md: layout, sm: layout, xs: layout, xxs: layout}}*/}
-      {/*>*/}
+      <Leva />
       <GridLayout
         // className="layout"
+        // onDragStart={(e) => console.log('drag start', e)}
+        containerPadding={[10, 10]}
+        onLayoutChange={(layout) => {
+          console.log('layout change - saving', layout);
+          localStorage.setItem('layout', JSON.stringify(layout));
+        }}
         layout={layout}
-        cols={12}
-        rowHeight={30}
-        width={1200}
-        ref={el => console.log(el)}
+        cols={100}
+        rowHeight={10}
+        width={1920}
+        resizeHandles={['s', 'e', 'se']}
       >
-        <div key="time_widget">
-          <TimeWidget />
-        </div>
-        
-        <div key="weather_widget">
-          <WeatherWidget />
-        </div>
+          <TimeWidget key="time_widget"/>
+          <WeatherWidget key="weather_widget"/>
+          <Card key="test_widget">
+            Pandas are pretty sweet
+          </Card>
         {/*<NewsWidget key={"news_widget"}/>*/}
       </GridLayout>
       {/*</ResponsiveGridLayout>*/}

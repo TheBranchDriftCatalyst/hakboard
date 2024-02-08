@@ -1,6 +1,6 @@
 "use client";
 import {DateTime} from "luxon";
-import {useEffect, useState} from "react";
+import {useEffect, useLayoutEffect, useState} from "react";
 import WidgetWrapper from "@/widgets/widget-wrapper";
 
 const now = (dateFormat = 'DDDD') => {
@@ -31,13 +31,15 @@ const TimeWidget = ({dateFormat}: TimeWidgetProps = defaultProps) => {
     ampm
   }, setTime] = useState(now(dateFormat));
 
-  useEffect(() => {
+  
+
+  useLayoutEffect(() => {
     const interval = setInterval(() => setTime(now(dateFormat)), 1000);
     return () => clearInterval(interval);
   }, [dateFormat]);
 
   return (
-    <div suppressHydrationWarning={true}>
+    <div>
       <div className={"flex flow-row justify-center"}>
         <span className="text-5xl">{hour}:{minute}</span>
         <span className={"flex flex-col"}>
@@ -49,10 +51,5 @@ const TimeWidget = ({dateFormat}: TimeWidgetProps = defaultProps) => {
     </div>
   )
 }
-
-// Define defaultProps outside the component
-// TimeWidget.defaultProps = {
-//   dateFormat: "DDDD"
-// };
 
 export default WidgetWrapper(TimeWidget, defaultProps);

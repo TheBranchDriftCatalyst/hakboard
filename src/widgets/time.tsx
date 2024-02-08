@@ -1,11 +1,9 @@
 "use client";
 import {DateTime} from "luxon";
 import {useEffect, useState} from "react";
-import {Card, CardContent} from "@/components/ui/card";
 import WidgetWrapper from "@/widgets/widget-wrapper";
 
 const now = (dateFormat = 'DDDD') => {
-  // probably can be optimized but who cares for now
   const datetime = DateTime.local();
   return {
     hour: datetime.toFormat('hh'),
@@ -16,25 +14,33 @@ const now = (dateFormat = 'DDDD') => {
   }
 };
 
-const TimeWidget = () => {
+interface TimeWidgetProps {
+  dateFormat?: string;
+}
+
+const defaultProps: TimeWidgetProps = {
+  dateFormat: "DDDD"
+}
+
+const TimeWidget = ({dateFormat}: TimeWidgetProps = defaultProps) => {
   const [{
     date,
     hour,
     minute,
     second,
     ampm
-  }, setTime] = useState(now());
+  }, setTime] = useState(now(dateFormat));
 
   useEffect(() => {
-    const interval = setInterval(() => setTime(now()), 1000);
+    const interval = setInterval(() => setTime(now(dateFormat)), 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [dateFormat]);
 
   return (
-    <div>
+    <div suppressHydrationWarning={true}>
       <div className={"flex flow-row justify-center"}>
         <span className="text-5xl">{hour}:{minute}</span>
-        <span className={"flex flex-col "}>
+        <span className={"flex flex-col"}>
               <div>{second}</div>
               <div>{ampm}</div>
             </span>
@@ -44,4 +50,9 @@ const TimeWidget = () => {
   )
 }
 
-export default WidgetWrapper(TimeWidget);
+// Define defaultProps outside the component
+// TimeWidget.defaultProps = {
+//   dateFormat: "DDDD"
+// };
+
+export default WidgetWrapper(TimeWidget, defaultProps);

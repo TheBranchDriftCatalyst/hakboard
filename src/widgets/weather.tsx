@@ -24,6 +24,11 @@ interface WeatherWidgetProps {
   long?: number;
 }
 
+const defaultProps: WeatherWidgetProps = {
+  lat: 39.7392,
+  long: -104.9903
+}
+
 const fetchWeather = async (long: number, lat: number): Promise<WeatherDTOIFace> => {
   console.log('Fetching weather data');
   const baseUrl: string = "https://api.openweathermap.org/data/3.0/onecall";
@@ -55,7 +60,7 @@ function formatTime(date: Date) {
 }
 
 
-export const WeatherWidget = ({lat = 39.7392, long = -104.9903}: WeatherWidgetProps) => {
+export const WeatherWidget = ({lat, long}: WeatherWidgetProps = defaultProps) => {
 
   const interval = 10 * 60000; // 10 minutes
 
@@ -124,4 +129,4 @@ export const WeatherWidget = ({lat = 39.7392, long = -104.9903}: WeatherWidgetPr
   );
 };
 
-export default WidgetWrapper(WeatherWidget);
+export default WidgetWrapper(WeatherWidget, defaultProps)

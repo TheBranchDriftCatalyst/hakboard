@@ -11,7 +11,7 @@ import React, {
 } from "react";
 import { JSX } from "react/jsx-runtime";
 import IntrinsicAttributes = JSX.IntrinsicAttributes;
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { Label } from "@/components/ui/label";
@@ -45,7 +45,8 @@ const WidgetWrapper = <T extends object>(
 
       const widgetProps = useControls(WrappedWidget.name, editableProps) as T;
 
-      const { toast } = useToast();
+      const width = parseFloat(props.style?.width as string);
+      const height = parseFloat(props.style?.height as string);
 
       console.log("WidgetWrapper", {
         WrappedWidget,
@@ -56,14 +57,17 @@ const WidgetWrapper = <T extends object>(
       });
 
       return (
-        <Card ref={ref} {...props}>
-          <ScrollArea className="h-full w-full">
-          <CardContent>
-            <Suspense fallback={<LoadingWidget />}>
-                <WrappedWidget {...widgetProps} />
-            </Suspense>
+        <Card ref={ref} {...props} >
+          {/* <CardHeader>
+            <CardTitle>{WrappedWidget.displayName || WrappedWidget.name}</CardTitle>
+          </CardHeader> */}
+          <CardContent className={`flex flex-col flex-grow h-full`}>
+              <Suspense fallback={<LoadingWidget />}>
+                  <ScrollArea>
+                    <WrappedWidget {...widgetProps} />
+                  </ScrollArea>
+              </Suspense>
           </CardContent>
-          </ScrollArea>
           {props.children}
         </Card>
       );
@@ -75,7 +79,7 @@ const WidgetWrapper = <T extends object>(
   })`;
 
   // It's not necessary to explicitly return defaultProps here as they are handled internally
-  return WithEditButton;
+  return React.memo(WithEditButton);
 };
 
 export default WidgetWrapper;

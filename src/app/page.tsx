@@ -11,15 +11,17 @@ import GridLayout, {
   Responsive,
   WidthProvider,
 } from "react-grid-layout";
+
+import { Resizable } from "react-resizable";
+import { withSize } from 'react-sizeme'
+
 import { Toaster } from "@/components/ui/toaster";
 
 import { Leva } from "leva";
 import { Card } from "@/components/ui/card";
-import { useLayoutEffect, useState } from "react";
+import { ForwardRefRenderFunction, ReactComponentElement, useLayoutEffect, useState } from "react";
 import { set } from "lodash";
 import Debug from "debug";
-
-const ResponsiveGridLayout = WidthProvider(Responsive);
 
 const defaultLayout: Layout[] = [
   { w: 14, h: 5, x: 0, y: 0, i: "time_widget" },
@@ -34,40 +36,48 @@ const defaultLayout: Layout[] = [
   { w: 20, h: 5, x: 80, y: 2, i: "news_widget" },
 ];
 
+const MyHandle = (props) => {
+  return <div ref={props.innerRef} className="foo" {...props} />;
+};
+
 export default function Home() {
-  const initLayout = JSON.stringify(defaultLayout);
   const debug = Debug("grid-layout");
-  debug("initLayout", initLayout);
+  const savedLayout = localStorage.getItem("layout") || "null";
   const [layout, setLayout] = useState<Layout[]>(defaultLayout);
 
+  const ResponsiveGridLayout = WidthProvider(Responsive);
+  // const ResponsiveGridLayout = withSize()(Responsive);
+  // const ResponsiveReactGridLayout = useMemo(() => WidthProvider(Responsive), []);
+
   useLayoutEffect(() => {
-    if (initLayout) {
-      debug("loading layout from local storage", JSON.parse(initLayout));
-      setLayout(JSON.parse(initLayout));
+    if (savedLayout) {
+      debug("loading layout from local storage", JSON.parse(savedLayout));
+      setLayout(JSON.parse(savedLayout));
     }
   }, []);
 
   return (
     <main>
       <Leva />
-      <GridLayout
-        containerPadding={[10, 10]}
+      <ResponsiveGridLayout
+        containerPadding={[5, 5]}
         onLayoutChange={(layout) => {
           debug("Saving layout to local storage", layout);
           localStorage.setItem("layout", JSON.stringify(layout));
         }}
-        draggableCancel="button"
-        layout={layout}
-        cols={100}
+        draggableCancel="button a"
         rowHeight={10}
-        width={1920}
-        resizeHandles={["s", "e", "se"]}
+        layouts={{ lg: layout, md: layout, sm: layout, xs: layout, xxs: layout }}
+        breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
+        cols={{ lg: 100, md: 100, sm: 100, xs: 100, xxs: 50 }}
+        resizeHandles={['s', 'w', 'e', 'n', 'sw', 'nw', 'se', 'ne']}
+        // resizeHandle={props => <Resizable handle={(handleAxis, ref) => <MyHandle innerRef={ref} className={`foo handle-${handleAxis}`} />} />}
       >
         <TimeWidget key="time_widget" />
         <WeatherWidget key="weather_widget" />
         <Card key="test_widget">Pandas are pretty sweet</Card>
         <NewsWidget key={"news_widget"}/>
-      </GridLayout>
+      </ResponsiveGridLayout>
       {/*</ResponsiveGridLayout>*/}
       <Background />
       <Toaster />

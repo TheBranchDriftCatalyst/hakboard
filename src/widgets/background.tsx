@@ -1,17 +1,25 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
+import WidgetWrapper from './widget-wrapper';
+import { useControls } from 'leva';
 
 // Define a type for the component props
 interface BackgroundWidgetProps {
   // backgrounds: string[]; // Array of strings for background image URLs
   opacity?: number;
-  interval?: number;
+  interval: number;
 }
 
-const BackgroundWidget: React.FC<BackgroundWidgetProps> = ({ opacity = 0.5, interval = 30 } : BackgroundWidgetProps) => {
+const defaultProps: BackgroundWidgetProps = {
+  opacity: 0.5,
+  interval: 30,
+}
+
+const BackgroundWidget: React.FC<BackgroundWidgetProps> = ({interval, opacity} : BackgroundWidgetProps = defaultProps) => {
 
   const [currentBackgroundIndex, setCurrentBackgroundIndex] = useState<number>(0);
 
+  // const { opacity, interval: iSec } = useControls('BackgroundWidget', props);
   const backgrounds = [
     // TODO: get this dynamically from a folder or from dropbox in the future
     "backgrounds/bg0.jpg",
@@ -23,7 +31,7 @@ const BackgroundWidget: React.FC<BackgroundWidgetProps> = ({ opacity = 0.5, inte
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentBackgroundIndex((prevIndex) => (prevIndex + 1) % backgrounds.length);
-    }, interval * 1000);
+    }, interval || 30 * 1000);
 
     return () => clearInterval(timer);
   }, [backgrounds.length, interval]);
@@ -32,9 +40,11 @@ const BackgroundWidget: React.FC<BackgroundWidgetProps> = ({ opacity = 0.5, inte
     <div
       className="fixed top-0 left-0 h-full w-full z-[-10] bg-center bg-no-repeat bg-cover"
       style={{
+        // TODO: this is going to be something like.... 
+        // getBackgroundFromPRovider(DropboxProvider, "backgrounds") -> urls[]
         backgroundImage: `url(${backgrounds[currentBackgroundIndex]})`,
         transition: 'background-image 1s ease-in-out',
-        opacity: 0.50, // Add some transparency to the background
+        opacity: opacity, // Add some transparency to the background
       }}
     >
     </div>
@@ -42,3 +52,5 @@ const BackgroundWidget: React.FC<BackgroundWidgetProps> = ({ opacity = 0.5, inte
 };
 
 export default BackgroundWidget;
+
+// export default WidgetWrapper(BackgroundWidget, { opacity: 0.5, interval: 30 });

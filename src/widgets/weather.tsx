@@ -1,37 +1,44 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
-import WidgetWrapper from "@/widgets/widget-wrapper";
+import { useContext, useEffect, useState } from "react";
 import {
-  CloudHail, Sunrise, Sunset, Haze, Tornado, SunMoon, CloudSun, CloudFog, Snowflake, CloudLightning, Cloud, Cloudy,
-  Wind, Thermometer, CloudRainWind, AlarmSmoke, CloudDrizzle, Sun, LucidePersonStanding
-} from "lucide-react";
-import mockWeatherResponse from '@/lib/open-weather-api-resp';
-import {WeatherConditionCodes, WeatherDatumIFace, WeatherDTOIFace as OpenWeatherDTO} from "@/lib/open-weather-dtos";
-import {DateTime}  from 'luxon';
-import axios from 'axios';
-import { Button } from '@/components/ui/button';
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import WidgetWrapper, { WidgetWidthContext, useWidgetWidth } from "@/widgets/widget-wrapper";
+import mockWeatherResponse from "@/lib/open-weather-api-resp";
+import {
+  OpenWeatherDTOInterface,
+  OpenWeatherDataMetric,
+  WeatherDatumIFace,
+} from "@/components/weather-clock/OpenWeatherDTO";
+import { DateTime } from "luxon";
+import axios from "axios";
+import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { WeatherClock } from "@/components/weather-clock/WeatherClock";
+import Debug  from "debug";
 
-// export const WeatherIconMapping = {
-//   sunrise: <Sunrise />,
-//   sunset: <Sunset />,
-//   wind: <Wind />,
-//   thermometer: <Thermometer />,
-// }
 
 interface WeatherWidgetProps {
-  lat?: number;
-  long?: number;
+  city: string;
+  metricRotationInterval: number;
 }
 
 const defaultProps: WeatherWidgetProps = {
-  lat: 39.7392,
-  long: -104.9903
-}
+  city: "Denver",
+  metricRotationInterval: 30,
+};
 
-const fetchWeather = async (long: number | undefined, lat: number | undefined): Promise<OpenWeatherDTO> => {
-  console.log('Fetching weather data');
+const fetchWeather = async (
+  long: number | undefined,
+  lat: number | undefined
+): Promise<OpenWeatherDTOInterface> => {
+  console.log("Fetching weather data");
   const baseUrl: string = "https://api.openweathermap.org/data/3.0/onecall";
   const apiKey = process.env.NEXT_PUBLIC_OPEN_WEATHER_API_KEY;
 
@@ -42,99 +49,75 @@ const fetchWeather = async (long: number | undefined, lat: number | undefined): 
         lon: long,
         appid: apiKey,
         exclude: "minutely,alerts",
-        units: "imperial"
-      }
+        units: "imperial",
+      },
     });
     return response.data; // Axios automatically parses the JSON response
   } catch (error) {
-    console.error('Error fetching weather data:', error);
+    console.error("Error fetching weather data:", error);
     throw error; // Rethrow or handle error as needed
   }
+};
+
+const debug = Debug('weather:widget')
+
+const asyncGeoCoding = async (city: string) => {
+  const dumbMap: Record<string, {lat: number, long: number}> = {
+    denver: { lat: 39.7392, long: -104.9903 },
+  }
+  return dumbMap[city.toLowerCase()]
 }
 
-function formatTime(date: Date) {
-  // Convert the JavaScript Date object to a Luxon DateTime object
-  const dt = DateTime.fromJSDate(date);
+export const WeatherWidget = ({
+  city,
+  metricRotationInterval,
+}: WeatherWidgetProps = defaultProps) => {
 
-  // Format the time as "hh:mm a" -> "hour:minute AM/PM"
-  return dt.toFormat('h:mm a');
-}
+  // useQuery hook usage
+  const { data: weatherData, isLoading, isError, error } = useQuery({
+    queryKey: ["weather", city],
+    queryFn: async () => {
+      const { lat, long } = await asyncGeoCoding(city);
+      const weatherData = await fetchWeather(long, lat)
+      // convert to a lookup table
+      weatherData.hourly = weatherData.hourly.map((curr: WeatherDatumIFace, index) => {
+        const dt = DateTime.fromSeconds(curr?.dt)
+        console.log(`${dt.toLocaleString(DateTime.DATETIME_FULL)}`, {curr, index}) 
+        curr.dt = dt
+        return curr
+      }, {})
 
+      return weatherData
+    },
+    refetchInterval: 10 * 60000, // 10 minutes
+  });
 
-export const WeatherWidget = ({lat, long}: WeatherWidgetProps = defaultProps) => {
-
-  const interval = 10 * 60000; // 10 minutes
-  const [isLoading, setIsLoading] = useState(true);
-
-  const [
-    currentWeather,
-    setCurrentWeather
-  ] = useState<WeatherDatumIFace>();
+  const [currentlyDisplayedMetric, setCurrentlyDisplayedMetric] = useState('temp' as OpenWeatherDataMetric)
 
   useEffect(() => {
-    fetchWeather(long, lat).then((weatherData) => {
-      console.log('Weather weatherData:', weatherData);
-      setCurrentWeather(weatherData.current);
-      setIsLoading(false);
-    });
+    const timerId = setInterval(() => {
+      // TODO: rotate through metrics
+      // TODO: also verify that react is caching the thing here
+      debug('rotating metric')
+      setCurrentlyDisplayedMetric('temp')
+    }, 1000 * metricRotationInterval) // 30 seconds
+    return () => clearInterval(timerId)
+  }, [weatherData, city, metricRotationInterval])
 
-  //   const timer = setInterval(() => {
-  //     fetchWeather(long, lat).then((data) => {
-  //     console.log('Weather data:', data);
-  //   });
-  //   }, interval);
-  //
-  //   return () => clearInterval(timer);
-  }, [interval, long, lat]);
+  const size = useWidgetWidth()
 
-  const  {
-    temp,
-    wind_speed,
-    wind_gust = null,
-    sunset,
-    sunrise,
-    uvi,
-    weather
-  } = currentWeather || {};
-
-  const [weather_condition, ...rest] = weather || [];
-  const {description, id } = weather_condition || {};
-
-  // @ts-ignore
-  const ConditionIcon = WeatherConditionCodes[id] || CloudSun; // TODO: not a fan of this
-
-  if (isLoading) {
-    return (
-      <CardContent>
-        <div>Loading...</div>
-      </CardContent>
-    )
-  }
+  debug('weatherData', {
+    weatherData,
+    isLoading,
+    isError,
+    error,
+    size
+  })
 
   return (
-      <CardContent>
-          <div className="flex flex-row space-x-1">
-            <Thermometer className="shrink"/>
-            <span>{temp}&deg;F</span>
-            { uvi && uvi > 0 && <span><Sun className="inline"/> {uvi}</span>}
-          </div>
-
-          <div className="flex flex-col space-x-1">
-            <ConditionIcon size={128}/>
-            <div>{description}</div>
-          </div>
-
-          <div className="shrink"> <Wind className="inline" /> <span>{wind_speed} {wind_gust != 0 && `(${wind_gust})`} mph</span></div>
-
-          {/* <Button className="draggable-cancel" onClick={() => fetchWeather(long, lat)}>Refresh</Button> */}
-          {/*<div className="flex">*/}
-          {/*  <Sunrise className="inline" />*/}
-          {/*  <span>{formatTime(new Date(sunrise))}</span>*/}
-          {/*  <Sunset className="inline" />*/}
-          {/*  <span>{formatTime(new Date(sunset))}</span>*/}
-          {/*</div>*/}
-      </CardContent>
+      <WeatherClock openWeatherData={weatherData}  currentlyDisplayedMetric={currentlyDisplayedMetric} size={size}/>
   );
 };
 
-export default WidgetWrapper(WeatherWidget, defaultProps)
+export default WidgetWrapper(WeatherWidget, defaultProps);
+

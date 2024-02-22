@@ -31,8 +31,6 @@ const TimeWidget = ({dateFormat}: TimeWidgetProps = defaultProps) => {
     ampm
   }, setTime] = useState(now(dateFormat));
 
-  
-
   useLayoutEffect(() => {
     const interval = setInterval(() => setTime(now(dateFormat)), 1000);
     return () => clearInterval(interval);

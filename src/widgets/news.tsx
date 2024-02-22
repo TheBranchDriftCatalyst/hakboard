@@ -5,6 +5,7 @@ import axios from 'axios';
 // import {parseString} from 'xml2js'; // TODO remove this dependency
 import {Card, CardContent} from "@/components/ui/card";
 import WidgetWrapper from './widget-wrapper';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 // interface NewsWidgetProps {
 //   feed_bundle_url?: string;
@@ -102,18 +103,18 @@ export const NewsWidget= () => {
   // }
 
   return (
-      <CardContent>
-        <div>
+      // <CardContent>
+        <ScrollArea>
           {newsItems.map((item, index) => (
           <div key={index} className="mb-2">
-            <a href={item.url.target} target="_blank" rel="noreferrer">
+            <a href={item.url.target} target="_blank" rel="preconnect" >
               <h3 className="text-lg font-bold">{item.title}</h3>
             </a>
             <p>{item.description}</p>
           </div>
         ))}
-        </div>
-      </CardContent>
+        </ScrollArea>
+      // </CardContent>
   );
 };
 

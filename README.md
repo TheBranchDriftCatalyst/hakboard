@@ -14,11 +14,13 @@ to fit my needs.
 
 None of these components are fully implemented yet but the POCs are working more or less
 
-- [ ] Time Widget
-- [ ] Weather Widget
+- [75%] Time Widget
+- [70%] Weather Widget
   - Uses open weather API
-- [ ] News Widget
+  - style
+- [50%] News Widget
   - Utilizes Panda RSS feeds
+  - style and marguee mode
 - [ ] Agenda Widget (calendar)
   - connected to google calendar
 - [ ] Todo Widget
@@ -26,17 +28,22 @@ None of these components are fully implemented yet but the POCs are working more
 - [ ] Meal Prep widget
   - connected to notion database
 - Notes Widget
-- create automatic preview generation
+- [75%!!!] create automatic preview generation (pupetteer hanging)
   - gulp task that runs the server and screenshots the page
-  - [can copy this](https://github.com/TheBranchDriftCatalyst/jsonresume-theme-catalyst/blob/af4f5dea9ac9a21f224124a347a1e42d63caa0d7/gulp/pdf.js)
 
 - [ ] Final Styling
-  - synthwave it up
-- Integrate react grid on widgets
-  - allow for drag and drop of widgets
-- integrate wiget configuration mode
-  - allow saving and loading configuration to local storage
-- switch from static backgrounds to dropbox background source
+  - synthwave it up???
+- [75%] Integrate react grid on widgets
+  - [100%] allow for drag and drop of widgets
+  - [80%]allow resizing of widgets
+  - [100%] load and save widget layout on change
+  - export widget layout to file???
+  - handle proper overflow scrolling for widgets
+    - autoscroll marquee ability on the scroll area component
+- [33%] integrate wiget configuration mode
+  - [ ] allow saving and loading widget configuration to local storage
+  - currently using levo but tempted to move back to flippable cards...
+- [] switch from static backgrounds to dropbox background source
 
 ## Preview
 

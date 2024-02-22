@@ -25,14 +25,19 @@ import Debug  from "debug";
 
 
 interface WeatherWidgetProps {
-  city: string;
-  metricRotationInterval: number;
+  city?: string;
+  metricRotationInterval?: number;
 }
 
-const defaultProps: WeatherWidgetProps = {
+const defaultProps: Required<WeatherWidgetProps> = {
   city: "Denver",
   metricRotationInterval: 30,
 };
+
+export const defaultGridSizes = {
+    w: 20,
+    h: 20,
+}
 
 const fetchWeather = async (
   long: number | undefined,
@@ -68,24 +73,26 @@ const asyncGeoCoding = async (city: string) => {
   return dumbMap[city.toLowerCase()]
 }
 
-export const WeatherWidget = ({
-  city,
-  metricRotationInterval,
+const WeatherWidget = ({
+  city = defaultProps.city,
+  metricRotationInterval = defaultProps.metricRotationInterval,
 }: WeatherWidgetProps = defaultProps) => {
 
   // useQuery hook usage
   const { data: weatherData, isLoading, isError, error } = useQuery({
     queryKey: ["weather", city],
     queryFn: async () => {
+      if (!city) {
+        throw new Error("City is required");
+      }
       const { lat, long } = await asyncGeoCoding(city);
       const weatherData = await fetchWeather(long, lat)
       // convert to a lookup table
       weatherData.hourly = weatherData.hourly.map((curr: WeatherDatumIFace, index) => {
         const dt = DateTime.fromSeconds(curr?.dt)
-        console.log(`${dt.toLocaleString(DateTime.DATETIME_FULL)}`, {curr, index}) 
         curr.dt = dt
         return curr
-      }, {})
+      })
 
       return weatherData
     },
@@ -119,5 +126,7 @@ export const WeatherWidget = ({
   );
 };
 
-export default WidgetWrapper(WeatherWidget, defaultProps);
+export const WrappedWeatherWidget = WidgetWrapper(WeatherWidget, defaultProps);
+
+export default WrappedWeatherWidget
 

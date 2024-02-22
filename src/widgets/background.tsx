@@ -7,7 +7,7 @@ import { useControls } from 'leva';
 interface BackgroundWidgetProps {
   // backgrounds: string[]; // Array of strings for background image URLs
   opacity?: number;
-  interval: number;
+  interval?: number;
 }
 
 const defaultProps: BackgroundWidgetProps = {

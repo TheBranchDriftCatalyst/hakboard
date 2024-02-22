@@ -109,12 +109,13 @@ interface WeatherClockNodeInterface {
 }
 
 export const WeatherClockNode = (props: any) => {
-    const debug = Debug(`weather:clock:node:${props.hour12}`);
-    const { hour12, weatherData, style } = props;
-    
+    const debug = Debug(`weather:clock:node:${props.nodeIndex}`);
+    const { key, weatherData, style } = props;
+    const hour12 = weatherData?.dt.hour % 12 || 12;
     debug("WeatherClockNode", {...props, dt: weatherData?.dt.toLocaleString(DateTime.DATETIME_FULL_WITH_SECONDS)});
     
-    const angle = style?.angle
+    const { counterRotationStyles, angle } = props.rotation
+    // const angle = style?.angle
     
     const isNow = useMemo(() => new Date().getHours() % 12 == hour12, [hour12]);
 
@@ -122,7 +123,30 @@ export const WeatherClockNode = (props: any) => {
     const [{id: primaryConditionID, description: primaryDescription }] = weather;
     const ConditionIcon = WeatherConditionCodes[primaryConditionID] as LucideIcon;
     
-    
+    // // the weather api returns 48 hours of the next data, where index openWeatherData.hourly[0] === currentWeather
+      // // we need to map between the nodeIndex (location in the ui) starting at index 0 = 12 o-clock and the index in the hourly data,
+      // // we also need to determine if the current node is the current hour
+      // const nodeHour12 = index == 0 ? 12 : index;
+      // const now = DateTime.now();
+      // const currentHour24 = new Date().getHours();
+      // const currentHour12 = currentHour24 % 12;
+      // const dataOffset = Math.abs(12 - currentHour12);
+      // const weatherDataIndex = (index + dataOffset) % 12;
+      // const weatherData = openWeatherData?.hourly[weatherDataIndex];
+
+      // const isNow = currentHour24 % 12 == nodeHour12;
+      // const { sunset, sunrise } = openWeatherData?.current || {};
+      // console.log({
+      //   nodeHour12,
+      //   currentHour24,
+      //   index,
+      //   nodeTime: hourlyWeatherData?.dt.toLocaleString(DateTime.DATETIME_FULL),
+      //   nodeTimeHour: hourlyWeatherData?.dt.hour,
+      //   // sunset: sunset && DateTime.fromSeconds(sunset).toLocaleString(DateTime.DATETIME_FULL),
+      //   // sunrise: sunrise && DateTime.fromSeconds(sunrise).toLocaleString(DateTime.DATETIME_FULL),
+      // })
+      // const isSunset = sunset && DateTime.fromSeconds(sunset).hasSame()
+      // const isSunrise = sunrise && DateTime.fromSeconds(sunrise).hour == nodeHour12
     
     if (!ConditionIcon && primaryConditionID !== 9999) {
         console.warn(`No condition icon for code ${primaryConditionID}`, {weatherData});
@@ -143,16 +167,16 @@ export const WeatherClockNode = (props: any) => {
                     }}
                 >
                     <div
-                        style={{ transform: `rotate(${-angle}rad)` }}
+                        style={{ ...counterRotationStyles }}
                         className="p-1 aspect-square text-primary rounded-full"
                     >
                         {hour12}
                     </div>
                     <div
-                        style={{ transform: `rotate(${-angle}rad)` }}
+                        style={{ ...counterRotationStyles }}
                         className="w-full h-full"
                     >
-                        {ConditionIcon && (
+                    {ConditionIcon && (
                             <ConditionIcon
                                 className={`${
                                     isNow
@@ -166,10 +190,10 @@ export const WeatherClockNode = (props: any) => {
                 </div>
             </div>
             </HoverCardTrigger>
-            <HoverCardContent>
-              <div className="flex flex-col items-center" style={{position: 'absolute', transform: `rotate(${angle * 2*Math.PI}rad)`}} >
+            <HoverCardContent style={{ ...counterRotationStyles }}>
+              <div >
                 <span>{weatherData?.dt && weatherData.dt.toLocaleString(DateTime.DATETIME_FULL_WITH_SECONDS)}</span>
-                {/* <span>{JSON.stringify(weatherData, {space: 2})}</span> */}
+                <span>{JSON.stringify(weatherData, null, 2)}</span>
               </div>
             </HoverCardContent>
           </HoverCard>

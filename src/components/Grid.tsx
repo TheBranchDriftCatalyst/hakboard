@@ -5,11 +5,12 @@ import { ReactNode, useEffect, useMemo, useState } from "react";
 import { Layout, Responsive, WidthProvider } from "react-grid-layout";
 import { Responsive as ResponsiveType } from "react-grid-layout";
 
+import { defaultGridSizes as weatherWidgetSize } from "@/widgets/weather";
+
 const defaultLayout: Layout[] = [
   { w: 14, h: 5, x: 0, y: 0, i: "time_widget" },
   {
-    w: 10,
-    h: 12,
+    ...weatherWidgetSize,
     x: 3,
     y: 5,
     i: "weather_widget",
@@ -30,13 +31,13 @@ const getFromLocalStorage = (): Layout[] => {
   return initLayout;
 };
 
-export const DraggableGridLayout = ({ children }: {children: ReactNode}) => {
+export const DraggableGridLayout = ({ dashboard, children }: {children: ReactNode}) => {
   const debug = Debug("grid-layout");
   const [layout, setLayout] = useState<Layout[]>(getFromLocalStorage());
   const ResponsiveGridLayout = useMemo(() => WidthProvider(Responsive), [layout]);
 
   useEffect(() => {
-    const savedLayout = localStorage.getItem("layout") || null;
+    const savedLayout = localStorage.getItem(`layout:${dashboard}`) || null;
     if (savedLayout) {
       debug("loading layout from local storage", JSON.parse(savedLayout));
       setLayout(JSON.parse(savedLayout));
@@ -49,7 +50,7 @@ export const DraggableGridLayout = ({ children }: {children: ReactNode}) => {
       onLayoutChange={(layout) => {
         debug("Saving layout to local storage", layout);
         // could debounce this perhaps
-        localStorage.setItem("layout", JSON.stringify(layout));
+        localStorage.setItem(`layout:${dashboard}`, JSON.stringify(layout));
       }}
       draggableCancel="button a"
       rowHeight={10}

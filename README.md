@@ -2,13 +2,17 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 ## Overview
 
-This is a custom digital dashboard inspired by Dakboard, designed to offer more interactive
-features and integration capabilities, particularly with Notion for database connections. As
-well as resolve the constant disconnects that occurred with Dakboard.
 Dissatisfied with Dakboard's limited interactivity and feature set, I created this project
-to provide a highly customizable and interactive platform. It includes interactive widgets,
-seamless Notion integration for real-time data display, and extensive customization options
-to fit my needs.
+to provide a highly customizable and interactive platform to create POC dashboards for all my projects. 
+It includes interactive widgets, seamless Notion integration for real-time data display, and extensive customization options to fit my needs.
+
+- MVP Goal is to create a basic Dakboard replacement dashboard
+- Once done, i will focus on expanding this to encompass dashboards/uis for my personal hacking projects
+  - Utilize a consistent widget, provider pattern for my personal coding ecosystem
+  - LLM Chatbot Interface connected to personal project 'the corpus'
+    - MVP RAG chatbot utilizing Notion DB
+    - OTher Datasources to include data around transcoding/etl pipelines
+  - Home Assistant Integrations (low low priority when i decide i need HA)
 
 ## Status
 
@@ -17,7 +21,7 @@ None of these components are fully implemented yet but the POCs are working more
 - [75%] Time Widget
 - [70%] Weather Widget
   - Uses open weather API
-  - style
+  - Radial weather clock
 - [50%] News Widget
   - Utilizes Panda RSS feeds
   - style and marguee mode
@@ -30,12 +34,15 @@ None of these components are fully implemented yet but the POCs are working more
 - Notes Widget
 - [75%!!!] create automatic preview generation (pupetteer hanging)
   - gulp task that runs the server and screenshots the page
+- [ ] LLM Chat Widget
 
 - [ ] Final Styling
   - synthwave it up???
+- [ ] fix all typescript errors (constant)
 - [75%] Integrate react grid on widgets
   - [100%] allow for drag and drop of widgets
   - [80%]allow resizing of widgets
+    - [ ] Responsive typography ui component
   - [100%] load and save widget layout on change
   - export widget layout to file???
   - handle proper overflow scrolling for widgets

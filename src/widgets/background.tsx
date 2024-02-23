@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect, use } from 'react';
 import WidgetWrapper from './widget-wrapper';
-import { useControls } from 'leva';
 
 // Define a type for the component props
 interface BackgroundWidgetProps {
@@ -19,7 +18,6 @@ const BackgroundWidget: React.FC<BackgroundWidgetProps> = ({interval, opacity} :
 
   const [currentBackgroundIndex, setCurrentBackgroundIndex] = useState<number>(0);
 
-  // const { opacity, interval: iSec } = useControls('BackgroundWidget', props);
   const backgrounds = [
     // TODO: get this dynamically from a folder or from dropbox in the future
     "backgrounds/bg0.jpg",
@@ -33,6 +31,7 @@ const BackgroundWidget: React.FC<BackgroundWidgetProps> = ({interval, opacity} :
       setCurrentBackgroundIndex((prevIndex) => (prevIndex + 1) % backgrounds.length);
     }, interval || 30 * 1000);
 
+    return () => clearInterval(timer);
     return () => clearInterval(timer);
   }, [backgrounds.length, interval]);
 

@@ -11,6 +11,7 @@ import React, {
   createContext,
   useContext,
   ExoticComponent,
+  useCallback,
 } from "react";
 import { JSX } from "react/jsx-runtime";
 import IntrinsicAttributes = JSX.IntrinsicAttributes;
@@ -27,8 +28,9 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { omit } from "lodash";
 import { Button } from "@/components/ui/button";
-import { useControls } from "leva";
+// import { useControls } from "leva";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { WidgetPropsProvider, useControls } from "@/components/sheets/WidgetControllSheet";
 // import { WidthProviderProps } from "react-grid-layout";
 
 // Component is a HOC that wraps the widget components themselves.
@@ -59,9 +61,16 @@ interface WidthProviderProps {
   children: React.ReactNode;
 }
 
-export const WidgetWidthContext = createContext<{ width: number; height: number } | null>(null);
+export const WidgetWidthContext = createContext<{
+  width: number;
+  height: number;
+} | null>(null);
 
-export const WidgetWidthProvider = ({ width, height, children }: WidthProviderProps) => {
+export const WidgetWidthProvider = ({
+  width,
+  height,
+  children,
+}: WidthProviderProps) => {
   return (
     <WidgetWidthContext.Provider value={{ width, height }}>
       {children}
@@ -73,39 +82,39 @@ export const WidgetWidthProvider = ({ width, height, children }: WidthProviderPr
 export const useWidgetWidth = () => {
   const context = useContext(WidgetWidthContext);
   if (!context) {
-    throw new Error("useWidgetWidth must be used within a WidgetWidthProvider");
+    throw new Error(
+      "useWidgetWidth must be used within a Widget (WidgetWidthProvider)"
+    );
   }
   return context;
 };
 
-// type T = T extends ComponentType<infer P> ? Partial<P> : never;
-
-
-// Refactor WidgetWrapper to handle default props of WrappedWidget
 const WidgetWrapper = <T extends object>(
   WrappedWidget: ComponentType<T>,
   defaultProps: T
 ) => {
   const WithEditButton = forwardRef<HTMLDivElement, T & WidgetGridProps>(
     (props, ref) => {
-
       // TODO: this is going to move to custom provider, for now its using leva
-      const widgetProps = useControls(WrappedWidget.name, defaultProps) as T;
+      // const widgetProps = useState(defaultProps);
+      const [widgetProps, setWidgetProps] = useControls(
+        WrappedWidget.name,
+        defaultProps
+      );
 
       const width = parseFloat(props.style?.width as string);
       const height = parseFloat(props.style?.height as string);
 
       return (
         <Card ref={ref} {...props}>
-          
-          <WidgetWidthProvider width={width} height={height}>
-          <CardContent className={`flex flex-col flex-grow h-full w-full`}>
+          <WidgetPropsProvider>
+            <WidgetWidthProvider width={width} height={height}>
               <Suspense fallback={<LoadingCardContent />}>
-                <WrappedWidget {...widgetProps as T}/>
+                <WrappedWidget {...(widgetProps as T)} />
               </Suspense>
-          </CardContent>
-          </WidgetWidthProvider>
-          {props.children}
+            </WidgetWidthProvider>
+            {props.children}
+          </WidgetPropsProvider>
         </Card>
       );
     }

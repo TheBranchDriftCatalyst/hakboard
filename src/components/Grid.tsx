@@ -52,7 +52,7 @@ export const DraggableGridLayout = ({ dashboard, children }: {children: ReactNod
         // could debounce this perhaps
         localStorage.setItem(`layout:${dashboard}`, JSON.stringify(layout));
       }}
-      draggableCancel="button a"
+      draggableCancel="button a .no-drag"
       rowHeight={10}
       layouts={{ lg: layout, md: layout, sm: layout, xs: layout, xxs: layout }}
       breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}

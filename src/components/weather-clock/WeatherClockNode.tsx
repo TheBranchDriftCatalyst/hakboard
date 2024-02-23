@@ -24,13 +24,17 @@ import {
     LucideIcon as LucidIcon,
 } from "lucide-react";
 import React, { useMemo } from "react";
-import { OpenWeatherIconMapping, WeatherConditionIFace, WeatherDatumIFace } from "./OpenWeatherDTO";
+import {
+    OpenWeatherIconMapping,
+    WeatherConditionIFace,
+    WeatherDatumIFace,
+} from "./OpenWeatherDTO";
 import Debug from "debug";
 import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card"
+    HoverCard,
+    HoverCardContent,
+    HoverCardTrigger,
+} from "@/components/ui/hover-card";
 import { DateTime } from "luxon";
 
 export const WeatherConditionCodes: OpenWeatherIconMapping | 9999 = {
@@ -97,9 +101,11 @@ interface ClockNodeStyleProps extends React.CSSProperties {
     angle?: number;
 }
 
-const unknownWeatherCondition: WeatherConditionIFace | {id: 9999, description: string} = {
-  id: 9999, 
-  description: "unknown condition"
+const unknownWeatherCondition:
+    | WeatherConditionIFace
+    | { id: 9999; description: string } = {
+    id: 9999,
+    description: "unknown condition",
 };
 
 interface WeatherClockNodeInterface {
@@ -109,97 +115,75 @@ interface WeatherClockNodeInterface {
 }
 
 export const WeatherClockNode = (props: any) => {
-    const debug = Debug(`weather:clock:node:${props.nodeIndex}`);
-    const { key, weatherData, style } = props;
-    const hour12 = weatherData?.dt.hour % 12 || 12;
-    debug("WeatherClockNode", {...props, dt: weatherData?.dt.toLocaleString(DateTime.DATETIME_FULL_WITH_SECONDS)});
-    
-    const { counterRotationStyles, angle } = props.rotation
-    // const angle = style?.angle
-    
-    const isNow = useMemo(() => new Date().getHours() % 12 == hour12, [hour12]);
-
-    const {  weather } = weatherData || {weather: [unknownWeatherCondition]}
-    const [{id: primaryConditionID, description: primaryDescription }] = weather;
+    const debug = Debug(`weather:clock:node:${props.hour12}`);
+    const { weatherData, style, hour12 } = props;
+    const { counterRotationStyles, angle } = props.rotation;
+    const { weather } = weatherData || { weather: [unknownWeatherCondition] };
+    const [{ id: primaryConditionID, description: primaryDescription }] = weather;
     const ConditionIcon = WeatherConditionCodes[primaryConditionID] as LucideIcon;
-    
-    // // the weather api returns 48 hours of the next data, where index openWeatherData.hourly[0] === currentWeather
-      // // we need to map between the nodeIndex (location in the ui) starting at index 0 = 12 o-clock and the index in the hourly data,
-      // // we also need to determine if the current node is the current hour
-      // const nodeHour12 = index == 0 ? 12 : index;
-      // const now = DateTime.now();
-      // const currentHour24 = new Date().getHours();
-      // const currentHour12 = currentHour24 % 12;
-      // const dataOffset = Math.abs(12 - currentHour12);
-      // const weatherDataIndex = (index + dataOffset) % 12;
-      // const weatherData = openWeatherData?.hourly[weatherDataIndex];
+    const currentHour24 = new Date().getHours();
 
-      // const isNow = currentHour24 % 12 == nodeHour12;
-      // const { sunset, sunrise } = openWeatherData?.current || {};
-      // console.log({
-      //   nodeHour12,
-      //   currentHour24,
-      //   index,
-      //   nodeTime: hourlyWeatherData?.dt.toLocaleString(DateTime.DATETIME_FULL),
-      //   nodeTimeHour: hourlyWeatherData?.dt.hour,
-      //   // sunset: sunset && DateTime.fromSeconds(sunset).toLocaleString(DateTime.DATETIME_FULL),
-      //   // sunrise: sunrise && DateTime.fromSeconds(sunrise).toLocaleString(DateTime.DATETIME_FULL),
-      // })
-      // const isSunset = sunset && DateTime.fromSeconds(sunset).hasSame()
-      // const isSunrise = sunrise && DateTime.fromSeconds(sunrise).hour == nodeHour12
-    
+    const isNow = currentHour24 % 12 == hour12;
+
     if (!ConditionIcon && primaryConditionID !== 9999) {
-        console.warn(`No condition icon for code ${primaryConditionID}`, {weatherData});
+        console.warn(`No condition icon for code ${primaryConditionID}`, {
+            weatherData,
+        });
     }
 
-    return (
-        <div style={style} >
-          <HoverCard>
-            <HoverCardTrigger>
-              <div className={`w-28 h-16`} style={{ position: "relative" }}>
-                <div
-                    className={`w-full h-full flex justify-center items-center`}
-                    style={{
-                        position: "absolute",
-                        top: "50%",
-                        left: "50%",
-                        transform: `translate(-50%, -50%)`,
-                    }}
-                >
-                    <div
-                        style={{ ...counterRotationStyles }}
-                        className="p-1 aspect-square text-primary rounded-full"
-                    >
-                        {hour12}
-                    </div>
-                    <div
-                        style={{ ...counterRotationStyles }}
-                        className="w-full h-full"
-                    >
-                    {ConditionIcon && (
-                            <ConditionIcon
-                                className={`${
-                                    isNow
-                                        ? "text-primary animate-pulse"
-                                        : ""
-                                } w-full h-full`}
-                            />
-                        )}
+    debug("WeatherClockNode", {
+        ...props,
+        dt: weatherData?.dt.toLocaleString(DateTime.DATETIME_FULL_WITH_SECONDS),
+    });
 
+    return (
+        <div style={style} className="no-drag">
+            <HoverCard>
+                <HoverCardTrigger>
+                    <div className={`w-28 h-16`} style={{ position: "relative" }}>
+                        <div
+                            className={`w-full h-full flex justify-center items-center`}
+                            style={{
+                                position: "absolute",
+                                top: "50%",
+                                left: "50%",
+                                transform: `translate(-50%, -50%)`,
+                            }}
+                        >
+                            <div
+                                style={{ ...counterRotationStyles }}
+                                className="p-1 aspect-square text-primary rounded-full"
+                            >
+                                {hour12}
+                            </div>
+                            <div
+                                style={{ ...counterRotationStyles }}
+                                className="w-full h-full"
+                            >
+                                {ConditionIcon && (
+                                    <ConditionIcon
+                                        className={`${isNow ? "text-primary animate-pulse" : ""
+                                            } w-full h-full`}
+                                    />
+                                )}
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-            </HoverCardTrigger>
-            <HoverCardContent style={{ ...counterRotationStyles }}>
-              <div >
-                <span>{weatherData?.dt && weatherData.dt.toLocaleString(DateTime.DATETIME_FULL_WITH_SECONDS)}</span>
-                <span>{JSON.stringify(weatherData, null, 2)}</span>
-              </div>
-            </HoverCardContent>
-          </HoverCard>
+                </HoverCardTrigger>
+                <HoverCardContent style={{ ...counterRotationStyles }}>
+                    <div>
+                        <span>
+                            {weatherData?.dt &&
+                                weatherData.dt.toLocaleString(
+                                    DateTime.DATETIME_FULL_WITH_SECONDS
+                                )}
+                        </span>
+                        <span>{JSON.stringify(weatherData, null, 2)}</span>
+                    </div>
+                </HoverCardContent>
+            </HoverCard>
         </div>
     );
 };
 
 export default React.memo(WeatherClockNode);
-

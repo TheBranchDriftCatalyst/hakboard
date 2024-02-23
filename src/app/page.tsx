@@ -28,6 +28,17 @@ import { set } from "lodash";
 import Debug from "debug";
 import DraggableGridLayout from "@/components/Grid";
 import { useSearchParams } from 'next/navigation'
+import { useToast } from "@/components/ui/use-toast";
+import { SheetProvider, SheetTrigger } from "@/components/ui/sheet";
+import { WidgetPropsProvider, useControls } from "@/components/sheets/WidgetControllSheet";
+
+// const MyComponent = () => {
+//   const openSheet = useSheet();
+
+//   return (
+//     <button onClick={() => openSheet(MyContentComponent)}>Open Sheet</button>
+//   );
+// };
 
 const dashboards = {
   default: [
@@ -46,17 +57,34 @@ export default function Home() {
 
   const searchParams = useSearchParams()
  
-  const dashName = searchParams.get('dashboard') || "default"
+  let dashName = searchParams.get('dashboard');
+  if (!dashName) {
+    dashName = 'default';
+    debug("No dashboard name found, using default");
+  }
+
+  // const openSheet = useSheet();
+
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     openSheet(MyContentComponent)
+      
+  //   }, 2000)
+  // })
 
   return (
     <main>
       <QueryClientProvider client={new QueryClient()}>
-        <Leva />
-        <DraggableGridLayout dashboard={dashName}>
-          {dashboards[dashName]}
-        </DraggableGridLayout>
-        <Background />
-        <Toaster />
+        {/* Note: we need this outside of SheetProvider because the WidgetControll sheet is placed here */}
+        <WidgetPropsProvider> 
+          <SheetProvider>
+            <DraggableGridLayout dashboard={dashName}>
+              {dashboards[dashName]}
+            </DraggableGridLayout>
+            <Background />
+            <Toaster />
+          </SheetProvider>
+        </WidgetPropsProvider>
       </QueryClientProvider>
     </main>
   );

@@ -2,6 +2,7 @@ import BrowserSyncPlugin from "browser-sync-webpack-plugin";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  reactStrictMode: false,
   async headers() {
     return [
       {

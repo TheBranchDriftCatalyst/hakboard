@@ -9,6 +9,8 @@ import Debug from "debug";
 import WeatherClockNode, { WeatherConditionCodes } from "./WeatherClockNode";
 import { DateTime } from "luxon";
 import { chain } from "lodash";
+import { useSheet } from "../ui/sheet";
+import WidgetControls from "../sheets/WidgetControllSheet";
 
 const debug = Debug("weather:clock");
 
@@ -41,6 +43,14 @@ export const WeatherClock = ({
 }: WeatherClockProps) => {
   const clockSize = Math.max(Math.min(width, height) * 0.75, 10);
   const radius = clockSize / 2;
+
+  // const { openSheet } = useSheet();
+
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     openSheet(WidgetControls); // This is a test
+  //   }, 2000)
+  // }, [])
 
   const hourlyForecastNodes = openWeatherData?.hourly
     ?.slice()
@@ -80,6 +90,7 @@ export const WeatherClock = ({
   // const hourlyForecastNodes = Array.from({ length: 12 }).map((_, index) => {
   //   // styling and rotation and location constants
   // });
+  
 
   const currentConditions = openWeatherData?.current?.weather[0]?.id;
   const primaryDescription = openWeatherData?.current?.weather[0]?.description;

@@ -43,7 +43,6 @@ const fetchWeather = async (
   long: number | undefined,
   lat: number | undefined
 ): Promise<OpenWeatherDTOInterface> => {
-  console.log("Fetching weather data");
   const baseUrl: string = "https://api.openweathermap.org/data/3.0/onecall";
   const apiKey = process.env.NEXT_PUBLIC_OPEN_WEATHER_API_KEY;
 

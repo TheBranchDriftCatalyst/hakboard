@@ -92,7 +92,7 @@ export const NewsWidget= () => {
 
   useEffect(() => {
     const articles = fetchArticlesFromFeed(feeds).then((articles) => {
-      console.log('Articles:', articles);
+      // console.log('Articles:', articles);
       setNewsItems(articles);
       setIsLoading(false);
     });

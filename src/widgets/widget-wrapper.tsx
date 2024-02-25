@@ -30,7 +30,7 @@ import { omit } from "lodash";
 import { Button } from "@/components/ui/button";
 // import { useControls } from "leva";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { WidgetPropsProvider, useControls } from "@/components/sheets/WidgetControllSheet";
+import { WidgetPropsProvider, useControls } from "@/components/sheets/WidgetControlSheet";
 // import { WidthProviderProps } from "react-grid-layout";
 
 // Component is a HOC that wraps the widget components themselves.

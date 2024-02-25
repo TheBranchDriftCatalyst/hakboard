@@ -1,11 +1,11 @@
 "use client";
 
-import React, {useEffect, useState} from 'react';
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 // import {parseString} from 'xml2js'; // TODO remove this dependency
-import {Card, CardContent} from "@/components/ui/card";
-import WidgetWrapper from './widget-wrapper';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Card, CardContent } from "@/components/ui/card";
+import WidgetWrapper from "./widget-wrapper";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 // interface NewsWidgetProps {
 //   feed_bundle_url?: string;
@@ -18,21 +18,24 @@ const feeds = [
   "5718e53d7a84fb1901e05914",
   "5718e53e7a84fb1901e059c7",
   "5718e53e7a84fb1901e05929",
-  "5718e53e7a84fb1901e05971"
-]
+  "5718e53e7a84fb1901e05971",
+];
 
-const fetchArticlesFromFeed = async (feed_ids: string[], {limit = 50, page = 1, sort = 'latest'} = {}): Promise<NewsItem[]> => {
+const fetchArticlesFromFeed = async (
+  feed_ids: string[],
+  { limit = 50, page = 1, sort = "latest" } = {}
+): Promise<NewsItem[]> => {
   try {
-    console.log('Fetching RSS feed');
-    const result = await axios.get('https://api-panda.com/v4/articles', {
-      params: { feeds: feed_ids.join(','), limit, page, sort }
+    console.log("Fetching RSS feed");
+    const result = await axios.get("https://api-panda.com/v4/articles", {
+      params: { feeds: feed_ids.join(","), limit, page, sort },
     });
     return result.data;
   } catch (error) {
-    console.error('Error fetching RSS feed:', error);
-    return []
+    console.error("Error fetching RSS feed:", error);
+    return [];
   }
-}
+};
 
 interface NewsItem {
   _id: string;
@@ -86,7 +89,7 @@ interface Urls {
   target: string;
 }
 
-export const NewsWidget= () => {
+export const NewsWidget = () => {
   const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -103,18 +106,16 @@ export const NewsWidget= () => {
   // }
 
   return (
-      // <CardContent>
-        <ScrollArea>
-          {newsItems.map((item, index) => (
-          <div key={index} className="mb-2">
-            <a href={item.url.target} target="_blank" rel="preconnect" >
-              <h3 className="text-lg font-bold">{item.title}</h3>
-            </a>
-            <p>{item.description}</p>
-          </div>
-        ))}
-        </ScrollArea>
-      // </CardContent>
+    <ScrollArea className="no-drag">
+      {newsItems.map((item, index) => (
+        <div key={index} className="mb-2">
+          <a href={item.url.target} target="_blank" rel="preconnect">
+            <h3 className="text-lg font-bold">{item.title}</h3>
+          </a>
+          <p>{item.description}</p>
+        </div>
+      ))}
+    </ScrollArea>
   );
 };
 

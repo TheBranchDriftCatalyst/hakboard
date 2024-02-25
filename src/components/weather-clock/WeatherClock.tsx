@@ -10,7 +10,7 @@ import WeatherClockNode, { WeatherConditionCodes } from "./WeatherClockNode";
 import { DateTime } from "luxon";
 import { chain } from "lodash";
 import { useSheet } from "../ui/sheet";
-import WidgetControls from "../sheets/WidgetControllSheet";
+import WidgetControls from "../sheets/WidgetControlSheet";
 
 const debug = Debug("weather:clock");
 
@@ -57,7 +57,7 @@ export const WeatherClock = ({
     .slice(0, 12) // Take the first 12 elements representing the next 12 hours of forecasts
     .sort((a, b) => (a.dt.hour % 12) - (b.dt.hour % 12)) // Sort by hour, such that index 0 is 12 o-clock not current hour
     .map((hourlyWeatherData, index) => {
-      const rotationFactor = -((90 * Math.PI) / 180); // rotate to the counterclockwise 90 degrees, otherwise we start at 3 o-clock, 0=24|12
+      const rotationFactor = -((90 * Math.PI) / 180); // rotate counterclockwise 90 degrees, otherwise we start at 3 o-clock, 0=24|12
       const angle = (index / 12) * 2 * Math.PI + rotationFactor; // Angle in radians
       const x = radius * Math.cos(angle) + radius;
       const y = radius * Math.sin(angle) + radius;
@@ -98,7 +98,7 @@ export const WeatherClock = ({
 
   return (
     <div
-      className="border-primary border-2 flex justify-center items-center w-full h-full"
+      className="flex justify-center items-center w-full h-full"
       style={{
         position: "relative",
         display: "flex",

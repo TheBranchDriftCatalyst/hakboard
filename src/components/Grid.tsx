@@ -31,7 +31,12 @@ const getFromLocalStorage = (): Layout[] => {
   return initLayout;
 };
 
-export const DraggableGridLayout = ({ dashboard, children }: {children: ReactNode}) => {
+interface DraggableGridLayoutProps {
+  dashboard: string;
+  children: ReactNode;
+}
+
+export const DraggableGridLayout = ({ dashboard, children }: DraggableGridLayoutProps) => {
   const debug = Debug("grid-layout");
   const [layout, setLayout] = useState<Layout[]>(getFromLocalStorage());
   const ResponsiveGridLayout = useMemo(() => WidthProvider(Responsive), [layout]);

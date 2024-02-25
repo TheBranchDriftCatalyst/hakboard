@@ -7,7 +7,7 @@ import { X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { useContext, useState } from "react";
-import WidgetControls from "../sheets/WidgetControllSheet";
+import WidgetControls from "../sheets/WidgetControlSheet";
 
 const Sheet = SheetPrimitive.Root;
 

@@ -30,7 +30,7 @@ import DraggableGridLayout from "@/components/Grid";
 import { useSearchParams } from 'next/navigation'
 import { useToast } from "@/components/ui/use-toast";
 import { SheetProvider, SheetTrigger } from "@/components/ui/sheet";
-import { WidgetPropsProvider, useControls } from "@/components/sheets/WidgetControllSheet";
+import { WidgetPropsProvider, useControls } from "@/components/sheets/WidgetControlSheet";
 
 // const MyComponent = () => {
 //   const openSheet = useSheet();
@@ -68,7 +68,6 @@ export default function Home() {
   // useEffect(() => {
   //   setTimeout(() => {
   //     openSheet(MyContentComponent)
-      
   //   }, 2000)
   // })
 
@@ -79,7 +78,7 @@ export default function Home() {
         <WidgetPropsProvider> 
           <SheetProvider>
             <DraggableGridLayout dashboard={dashName}>
-              {dashboards[dashName]}
+              {dashboards[dashName as keyof typeof dashboards]}
             </DraggableGridLayout>
             <Background />
             <Toaster />

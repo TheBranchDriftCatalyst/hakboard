@@ -9,18 +9,53 @@ import { SheetHeader, SheetTitle, SheetClose } from '../ui/sheet';
 import { map } from 'lodash';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
+import { ScrollArea } from '../ui/scroll-area';
 
 const debug = require('debug')('widget:controls');
 
-const WidgetPropsContext = React.createContext({
+// TODO: Implement an explicit UseControls schema (allows defining control types)
+// TODO: Break this up into some seperate files
+// Fix typing
+
+type WidgetName = string;
+type PropName = string;
+type PropValue =  string | number | boolean;
+
+// 
+type PropSchema = {
+  type: 'string' | 'number' | 'boolean';
+} | PropValue;
+
+type StepperBarType = {
+  min: number;
+  max: number;
+  step: number;
+};
+
+type TextInputType = {
+
+}
+
+type WidgetPropertiesType = Record<PropName, PropSchema>;
+type WidgetPropsStore = Record<WidgetName, WidgetPropertiesType>;
+type UpdateWidgetPropsStore = (controlName: keyof WidgetPropsStore, props: WidgetPropsStore[keyof WidgetPropsStore]) => void
+
+// useControls('test', defaultProps, {}: PropsSchema)
+
+interface WidgetPropsContextInterface {
+  widgetProps: WidgetPropsStore
+  updateWidgetProps: UpdateWidgetPropsStore
+}
+
+const WidgetPropsContext = React.createContext<WidgetPropsContextInterface>({
   widgetProps: {},
   updateWidgetProps: () => {},
 });
 
-export const WidgetPropsProvider = ({ children }) => {
-  const [widgetProps, setWidgetProps] = useState({});
+export const WidgetPropsProvider = ({ children }: React.PropsWithChildren<typeof WidgetPropsContext>) => {
+  const [widgetProps, setWidgetProps] = useState<WidgetPropsStore>({});
 
-  const updateWidgetProps = useCallback((controlName, props) => {
+  const updateWidgetProps = useCallback<UpdateWidgetPropsStore>((controlName, props) => {
     debug('updateWidgetProps', controlName, props);
     setWidgetProps((prevProps) => ({
       ...prevProps,
@@ -35,18 +70,8 @@ export const WidgetPropsProvider = ({ children }) => {
   );
 };
 
-// export const useControls = (controlName, defaultProps) => {
-//   const { widgetProps, updateWidgetProps } = useContext(WidgetPropsContext);
-//   const [props, setProps] = useState(defaultProps);
-//   debug(controlName, { props});
-//   useEffect(() => {
-//     updateWidgetProps(controlName, props);
-//   }, [props, controlName, updateWidgetProps]);
 
-//   return [props, setProps];
-// };
-
-export const useControls = (controlName, defaultProps) => {
+export const useControls = (controlName: keyof WidgetPropsStore, defaultProps: WidgetPropsStore[WidgetName]) => {
   const { widgetProps, updateWidgetProps } = useContext(WidgetPropsContext);
   const [props, setProps] = useState(defaultProps);
 
@@ -64,20 +89,21 @@ export const useControls = (controlName, defaultProps) => {
   return [props, setProps];
 };
 
+
 export const useMasterControls = () => {
   const { widgetProps, updateWidgetProps } = useContext(WidgetPropsContext);
-  const [allProps, setAllProps] = useState(widgetProps);
+  const [allProps, setAllProps] = useState<WidgetPropsStore>(widgetProps);
 
   useEffect(() => {
     setAllProps(widgetProps);
   }, [widgetProps]);
 
-  const setProp = useCallback((widgetName, propName, newValue) => {
+  const setProp = useCallback((widgetName: WidgetName, propName: PropName, newValue: PropValue) => {
     const updatedProps = { ...allProps[widgetName], [propName]: newValue };
     updateWidgetProps(widgetName, updatedProps);
   }, [allProps, updateWidgetProps]);
 
-  return [allProps, setProp, widgetProps];
+  return [allProps, setProp];
 };
 
 const WidgetControls = () => {
@@ -91,30 +117,33 @@ const WidgetControls = () => {
       <SheetHeader>
         <SheetTitle>Widget Controls</SheetTitle>
       </SheetHeader>
+    <ScrollArea>
       <Accordion type="single" collapsible>
       {
-        map(allProps, (props, widgetName) => {
+        map(allProps, (props: WidgetPropsStore[WidgetName], widgetName: keyof WidgetPropsStore) => {
           return (
             <AccordionItem key={widgetName} value={widgetName}>
               <AccordionTrigger>{widgetName}</AccordionTrigger>
               {
-                Object.entries(props).map(([propName, value]) => (
-                  <AccordionContent>
+                map(props, (value, propName) => (
+                  // TODO: add boolean and input types here at some point
+                  <AccordionContent key={widgetName + '-' + propName}>
                     <Label htmlFor={propName}>{propName}</Label>
                     <Input
                       type="text"
-                      id={propName}
-                      value={value}
+                      id={String(propName)}
+                      value={String(value)}
                       onChange={(e) => setProp(widgetName, propName, e.target.value)}
                     />
                   </AccordionContent>
-              ))
+                ))
               }
             </AccordionItem>
           )
         })
       }
       </Accordion>
+      </ScrollArea>
     </div>
   );
 };

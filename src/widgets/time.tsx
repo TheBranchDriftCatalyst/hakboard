@@ -2,6 +2,8 @@
 import {DateTime} from "luxon";
 import {useEffect, useLayoutEffect, useState} from "react";
 import WidgetWrapper from "@/widgets/widget-wrapper";
+import ResponsiveTypography from "@/components/ui/typography";
+import { Responsive } from "react-grid-layout";
 
 const now = (dateFormat = 'DDDD') => {
   const datetime = DateTime.local();
@@ -37,15 +39,15 @@ const TimeWidget = ({dateFormat}: TimeWidgetProps = defaultProps) => {
   }, [dateFormat]);
 
   return (
-    <div>
-      <div className={"flex flow-row justify-center"}>
-        <span className="text-5xl">{hour}:{minute}</span>
-        <span className={"flex flex-col"}>
-              <div>{second}</div>
-              <div>{ampm}</div>
+    <div className="h-full w-full text-primary">
+      <div className={"flex grow flow-row justify-center"}>
+        <ResponsiveTypography size="h2">{hour}:{minute}</ResponsiveTypography>
+        <span className={"flex flex-col justify-center"}>
+              <ResponsiveTypography size="xs">{second}</ResponsiveTypography>
+              <ResponsiveTypography size="xs">{ampm}</ResponsiveTypography>
             </span>
       </div>
-      <div className={"flex text-s justify-center"}>{date}</div>
+      <ResponsiveTypography className={"flex text-s justify-center align-top"}>{date}</ResponsiveTypography>
     </div>
   )
 }

@@ -23,7 +23,6 @@ import { useQuery } from "@tanstack/react-query";
 import { WeatherClock } from "@/components/weather-clock/WeatherClock";
 import Debug  from "debug";
 
-
 interface WeatherWidgetProps {
   city?: string;
   metricRotationInterval?: number;
@@ -98,14 +97,12 @@ const WeatherWidget = ({
     refetchInterval: 10 * 60000, // 10 minutes
   });
 
-  const [currentlyDisplayedMetric, setCurrentlyDisplayedMetric] = useState('temp' as OpenWeatherDataMetric)
+  const [currentMetric, setCurrentMetric] = useState('temp' as OpenWeatherDataMetric)
 
   useEffect(() => {
     const timerId = setInterval(() => {
-      // TODO: rotate through metrics
-      // TODO: also verify that react is caching the thing here
       debug('rotating metric')
-      setCurrentlyDisplayedMetric('temp')
+      setCurrentMetric('temp')
     }, 1000 * metricRotationInterval) // 30 seconds
     return () => clearInterval(timerId)
   }, [weatherData, city, metricRotationInterval])
@@ -121,7 +118,10 @@ const WeatherWidget = ({
   })
 
   return (
-      <WeatherClock openWeatherData={weatherData}  currentlyDisplayedMetric={currentlyDisplayedMetric} size={size}/>
+      <WeatherClock 
+        openWeatherData={weatherData}
+        size={size}
+      />
   );
 };
 

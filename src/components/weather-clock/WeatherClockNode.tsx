@@ -2,7 +2,7 @@
 // - Each node represents the weather at that hour.
 // - The node will contain the temperature, the weather condition, or the time.  We will rotate through the different metrics.
 
-import { HelpCircle, LucideIcon } from "lucide-react";
+import { Droplets, Gauge, HelpCircle, LucideIcon, Radiation } from "lucide-react";
 import {
   CloudHail,
   Sunrise,
@@ -38,64 +38,9 @@ import {
 import { DateTime } from "luxon";
 import ResponsiveTypography from "../ui/typography";
 import WeatherCondition from "./WeatherCondition";
+import localFont from 'next/font/local'
 
-export const WeatherConditionCodes: OpenWeatherIconMapping | 9999 = {
-  200: CloudLightning,
-  201: CloudLightning,
-  202: CloudLightning,
-  210: CloudLightning,
-  211: CloudLightning,
-  212: CloudLightning,
-  221: CloudLightning,
-  230: CloudLightning,
-  231: CloudLightning,
-  232: CloudLightning,
-  300: CloudDrizzle,
-  301: CloudDrizzle,
-  302: CloudDrizzle,
-  310: CloudDrizzle,
-  311: CloudDrizzle,
-  312: CloudDrizzle,
-  313: CloudDrizzle,
-  314: CloudDrizzle,
-  321: CloudDrizzle,
-  500: CloudRainWind,
-  501: CloudRainWind,
-  502: CloudRainWind,
-  503: CloudRainWind,
-  504: CloudRainWind,
-  511: CloudRainWind,
-  520: CloudRainWind,
-  521: CloudRainWind,
-  522: CloudRainWind,
-  531: CloudRainWind,
-  600: Snowflake,
-  601: Snowflake,
-  602: Snowflake,
-  611: CloudHail,
-  612: CloudHail,
-  615: CloudHail,
-  616: CloudHail,
-  620: CloudHail,
-  621: CloudHail,
-  622: CloudHail,
-  701: CloudFog,
-  711: AlarmSmoke,
-  721: Haze,
-  731: Haze,
-  741: CloudFog,
-  751: Haze,
-  761: Haze,
-  762: AlarmSmoke,
-  771: Wind,
-  781: Tornado,
-  800: SunMoon,
-  801: Cloud,
-  802: Cloudy,
-  803: Cloudy,
-  804: Cloudy,
-  9999: HelpCircle,
-};
+import 'weather-icons/css/weather-icons.css';
 
 interface ClockNodeStyleProps extends React.CSSProperties {
   x: number;
@@ -111,23 +56,78 @@ const unknownWeatherCondition:
 };
 
 interface WeatherClockNodeInterface {
-  // hour:  0| 2| 3| 4| 5| 6| 7| 8| 9| 10| 11| 12| 13| 14| 15| 16| 17| 18| 19| 20| 21| 22| 23;
   weatherData: WeatherDatumIFace;
   style?: ClockNodeStyleProps;
 }
 
+export interface WeatherDatumConfig {
+    icon: string;
+    formatter: (value: any) => string;
+}
+
+export const WeatherMetric: Partial<Record<keyof WeatherDatumIFace, JSX.Element | WeatherDatumConfig>> = {
+    sunrise: <Sunrise />,
+    sunset: <Sunset />,
+    temp: <Thermometer />,
+    // feels_like: 'Feels Like',
+    pressure: <Gauge />,
+    humidity: <Droplets />,
+    // dew_point: 'Dew Point',
+    uvi: <Radiation />,
+    clouds: <Cloud />,
+    // visibility: <Telescope />,
+    wind_speed: <Wind />,
+    // wind_deg: 'Wind Direction',
+    wind_gust: <Wind />,
+    // rain: 'Rain',
+    // snow: 'Snow',
+}
+
+//  both getters and formatters in one, no need to separate this yet
+export const WeatherMetricFormatters: Partial<Record<keyof WeatherDatumIFace, (weatherData: WeatherDatumIFace, currentMetric: keyof WeatherDatumIFace) => string>> = {
+    temp: (weatherData, currentMetric) => `${weatherData[currentMetric]}&deg;F`,
+    uvi: (weatherData, currentMetric) => `${weatherData[currentMetric]}`,
+    wind_speed: (weatherData, currentMetric) => `${weatherData[currentMetric]} mph`,
+    wind_gust: (weatherData, currentMetric) => `${weatherData[currentMetric]} mph`,
+    pressure: (weatherData, currentMetric) => `${weatherData[currentMetric]} hPa`,
+    humidity: (weatherData, currentMetric) => `${weatherData[currentMetric]}%`,
+    clouds: (weatherData, currentMetric) => `${weatherData[currentMetric]}%`,
+    sunrise: (weatherData, currentMetric) => DateTime.fromSeconds(weatherData['sunrise']).toLocaleString(DateTime.TIME_SIMPLE),
+    sunset: (weatherData, currentMetric) => DateTime.fromSeconds(weatherData['sunset']).toLocaleString(DateTime.TIME_SIMPLE),
+}
+
+interface WeatherDatumProps {
+    weatherData: WeatherDatumIFace;
+    currentMetric: keyof WeatherDatumIFace;
+}
+
+export const WeatherDatum = ({weatherData, currentMetric}: WeatherDatumProps) => {
+
+    const formatter = WeatherMetricFormatters[currentMetric] || ((weatherData: WeatherConditionIFace) => weatherData[currentMetric]);
+
+    return (
+        <div className="flex flex-col items-center">
+            <ResponsiveTypography tag="span" size="2xs" className="text-secondary">
+              {formatter(weatherData, currentMetric)}
+            </ResponsiveTypography>
+        </div>
+    )
+}
+
+    
+
 export const WeatherClockNode = (props: any) => {
   const debug = Debug(`weather:clock:node:${props.hour12}`);
-  const { weatherData, style, hour12 } = props;
+  const { weatherData, style, hour12, currentMetric } = props;
   const { counterRotationStyles, angle } = props.rotation;
   const { weather } = weatherData || { weather: [unknownWeatherCondition] };
   const [{ id: primaryConditionID, description: primaryDescription }] = weather;
-  const ConditionIcon = WeatherConditionCodes[primaryConditionID] as LucideIcon;
+  // const ConditionIcon = WeatherConditionCodes[primaryConditionID] as LucideIcon;
   const currentHour24 = new Date().getHours();
 
   const isNow = currentHour24 % 12 == hour12;
 
-  if (!ConditionIcon && primaryConditionID !== 9999) {
+  if (primaryConditionID === 9999) {
     console.warn(`No condition icon for code ${primaryConditionID}`, {
       weatherData,
     });
@@ -142,9 +142,9 @@ export const WeatherClockNode = (props: any) => {
     <div style={style} className="no-drag">
       <HoverCard>
         <HoverCardTrigger>
-          <div className={`w-28 h-16`} style={{ position: "relative" }}>
+          <div className={`w-12 h-12`} style={{ position: "relative" }}>
             <div
-              className={`w-full h-full`}
+              className={`w-full h-full p-0 m-0 flex justify-center items-center`}
               style={{
                 position: "absolute",
                 top: "50%",
@@ -152,31 +152,21 @@ export const WeatherClockNode = (props: any) => {
                 transform: `translate(-50%, -50%)`,
               }}
             >
-              {/* <div
+              <div
                 style={{ ...counterRotationStyles }}
                 className="p-0 text-primary"
               >
-                <ResponsiveTypography>{hour12}</ResponsiveTypography>
-                
-              </div> */}
-              {/* <WeatherCondition code={} hour24={currentHour24} /> */}
+                <WeatherDatum weatherData={weatherData} currentMetric={currentMetric} />
+              </div>
               <div
                 style={{ ...counterRotationStyles }}
                 className="w-full h-full flex justify-center items-center"
               >
                 <WeatherCondition 
-                  code={primaryConditionID} 
-                  className={`${
-                    isNow ? "text-primary animate-pulse" : ""
-                  }`}
+                  code={primaryConditionID}
+                  className={`${isNow ? "text-primary animate-pulse" : ""}`} 
+                  time={""}
                 />
-                {/* {ConditionIcon && (
-                  <ConditionIcon
-                    className={`${
-                      isNow ? "text-primary animate-pulse" : ""
-                    } w-[75%] h-[75%]`}
-                  />
-                )} */}
               </div>
             </div>
           </div>

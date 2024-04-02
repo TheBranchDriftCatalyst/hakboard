@@ -2,6 +2,7 @@ import React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 import { Slot } from '@radix-ui/react-slot';
+import { useWidgetWidth } from '@/widgets/widget-wrapper';
 
 // type TypographyVariant = keyof typeof variants;
 
@@ -35,16 +36,46 @@ interface ResponsiveTypographyProps
   extends React.HTMLAttributes<HTMLDivElement>, 
     VariantProps<typeof typographyVariants>{
   tag?: keyof JSX.IntrinsicElements;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   asChild?: boolean;
+  breakpoints?: Record<string, number> | {};
 }
 
+const defaultBreakpoints = {
+  // '4xs': 0,
+  // '3xs': 30,
+  // '2xs': 60,
+  // 'xs': 90,
+  // 'sm': 120,
+  // 'base': 150,
+  // 'lg': 180,
+  // 'xl': 210,
+  // '2xl': 240,
+  // '3xl': 270,
+  // '4xl': 300,
+  // '5xl': 330,
+  // '6xl': 360,
+};
+
 const ResponsiveTypography = React.forwardRef<HTMLDivElement, ResponsiveTypographyProps>(
-  ({ tag, size, className, asChild = false, children, ...props }, ref) => {
-    const Comp = asChild ? Slot : "p";
+  ({ tag, size, className, asChild = false, children, breakpoints = defaultBreakpoints, ...props }, ref) => {
+    const { width } = useWidgetWidth();
+    const Comp = asChild ? Slot : (tag || "p");
+
+    let adjustedSize = size;
+
+    // Determine the appropriate size based on the widget's width and breakpoints
+    for (const [breakpointSize, breakpointWidth] of Object.entries(breakpoints)) {
+      if (width >= breakpointWidth) {
+        adjustedSize = breakpointSize;
+      } else {
+        break; // Stop iterating once the width is less than the breakpoint width
+      }
+    }
+
     return (
       <Comp 
-        className={cn(typographyVariants({ size, className }))}
+        className={cn(typographyVariants({ size: adjustedSize, className }))}
         ref={ref} 
         {...props}
       >

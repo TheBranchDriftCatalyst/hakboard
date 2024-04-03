@@ -20,8 +20,6 @@ import { set } from "lodash";
 import ResponsiveGridLayout from "@/components/ResponsiveGridLayout";
 import { useSearchParams } from 'next/navigation'
 import { useToast } from "@/components/ui/use-toast";
-import { WidgetPropsProvider, useControls } from "@/components/sheets/WidgetControlSheet";
-import Background from "@/widgets/background";
 import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuTrigger, NavigationMenuContent, NavigationMenuLink } from "@radix-ui/react-navigation-menu";
 import { TopBar } from "@/components/TopBar";
 import { DialogProvider } from "@/components/ui/dialog";

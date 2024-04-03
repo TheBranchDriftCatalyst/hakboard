@@ -2,7 +2,7 @@
 
 ## TODO
 
-I have had an outstanding task to refactor and fix my hakboard-dashboard project.  This has to deal with saving and editing dashboards as profiles.  This was a perfect oppurtunity for me to take my hakboard project, simplify it and reimplement a more robust localstorage and
+I have had an outstanding task to refactor and fix my innercircle-challenge-dashboard project.  This has to deal with saving and editing dashboards as profiles.  This was a perfect oppurtunity for me to take my innercircle-challenge project, simplify it and reimplement a more robust localstorage and
 persistence layers.  So I added a fairly heavy focus to this layer.
 
 ### Breakdown
@@ -24,5 +24,5 @@ persistence layers.  So I added a fairly heavy focus to this layer.
   - [ ] docker file (stretch)
 
 
-- [ ] prune divergence of hakboard crap
+- [ ] prune divergence of innercircle-challenge crap
   - do this in a SEPARATE COMMIT

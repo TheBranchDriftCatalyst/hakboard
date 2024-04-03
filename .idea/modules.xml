@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/hakboard-dashboard.iml" filepath="$PROJECT_DIR$/.idea/hakboard-dashboard.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/innercircle-challenge.iml" filepath="$PROJECT_DIR$/.idea/innercircle-challenge.iml" />
     </modules>
   </component>
 </project>

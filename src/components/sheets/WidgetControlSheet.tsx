@@ -13,34 +13,13 @@ import { ScrollArea } from '../ui/scroll-area';
 
 const debug = require('debug')('widget:controls');
 
-// TODO: Implement an explicit UseControls schema (allows defining control types)
-// TODO: Break this up into some seperate files
-// Fix typing
-
 type WidgetName = string;
 type PropName = string;
 type PropValue =  string | number | boolean;
 
-// 
-type PropSchema = {
-  type: 'string' | 'number' | 'boolean';
-} | PropValue;
-
-type StepperBarType = {
-  min: number;
-  max: number;
-  step: number;
-};
-
-type TextInputType = {
-
-}
-
-type WidgetPropertiesType = Record<PropName, PropSchema>;
+type WidgetPropertiesType = Record<PropName, any>;
 type WidgetPropsStore = Record<WidgetName, WidgetPropertiesType>;
 type UpdateWidgetPropsStore = (controlName: keyof WidgetPropsStore, props: WidgetPropsStore[keyof WidgetPropsStore]) => void
-
-// useControls('test', defaultProps, {}: PropsSchema)
 
 interface WidgetPropsContextInterface {
   widgetProps: WidgetPropsStore
@@ -52,7 +31,7 @@ const WidgetPropsContext = React.createContext<WidgetPropsContextInterface>({
   updateWidgetProps: () => {},
 });
 
-export const WidgetPropsProvider = ({ children }: React.PropsWithChildren<typeof WidgetPropsContext>) => {
+export const WidgetPropsProvider = ({ children }: { children: React.ReactNode }) => {
   const [widgetProps, setWidgetProps] = useState<WidgetPropsStore>({});
 
   const updateWidgetProps = useCallback<UpdateWidgetPropsStore>((controlName, props) => {
@@ -71,7 +50,7 @@ export const WidgetPropsProvider = ({ children }: React.PropsWithChildren<typeof
 };
 
 
-export const useControls = (controlName: keyof WidgetPropsStore, defaultProps: WidgetPropsStore[WidgetName]) => {
+export const useControls = (controlName: keyof WidgetPropsStore, defaultProps?: WidgetPropsStore[WidgetName]) => {
   const { widgetProps, updateWidgetProps } = useContext(WidgetPropsContext);
   const [props, setProps] = useState(defaultProps);
 
@@ -126,7 +105,6 @@ const WidgetControls = () => {
               <AccordionTrigger>{widgetName}</AccordionTrigger>
               {
                 map(props, (value, propName) => (
-                  // TODO: add boolean and input types here at some point
                   <AccordionContent key={widgetName + '-' + propName}>
                     <Label htmlFor={propName}>{propName}</Label>
                     <Input

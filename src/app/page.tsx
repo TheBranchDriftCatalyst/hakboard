@@ -1,11 +1,4 @@
 "use client";
-import Background from "@/widgets/background";
-import Text from "@/widgets/text";
-// import { Leva } from "leva";
-import WeatherWidget from "@/widgets/weather";
-import TimeWidget from "@/widgets/time";
-import NewsWidget from "@/widgets/news";
-// import GridLayout from 'react-grid-layout';
 import GridLayout, {
   Layout,
   Responsive,
@@ -21,69 +14,31 @@ import { withSize } from 'react-sizeme'
 
 import { Toaster } from "@/components/ui/toaster";
 
-import { Leva } from "leva";
 import { Card } from "@/components/ui/card";
-import { ClassAttributes, ForwardRefRenderFunction, Fragment, HTMLAttributes, JSX, ReactComponentElement, forwardRef, useEffect, useLayoutEffect, useMemo, useState } from "react";
+import { ClassAttributes, ForwardRefRenderFunction, Fragment, HTMLAttributes, JSX, forwardRef, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { set } from "lodash";
-import Debug from "debug";
-import DraggableGridLayout from "@/components/Grid";
+import ResponsiveGridLayout from "@/components/ResponsiveGridLayout";
 import { useSearchParams } from 'next/navigation'
 import { useToast } from "@/components/ui/use-toast";
-import { SheetProvider, SheetTrigger } from "@/components/ui/sheet";
 import { WidgetPropsProvider, useControls } from "@/components/sheets/WidgetControlSheet";
+import Background from "@/widgets/background";
+import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuTrigger, NavigationMenuContent, NavigationMenuLink } from "@radix-ui/react-navigation-menu";
+import { TopBar } from "@/components/TopBar";
+import { DialogProvider } from "@/components/ui/dialog";
 
-// const MyComponent = () => {
-//   const openSheet = useSheet();
 
-//   return (
-//     <button onClick={() => openSheet(MyContentComponent)}>Open Sheet</button>
-//   );
-// };
-
-const dashboards = {
-  default: [
-    <TimeWidget key="time_widget" />,
-    <WeatherWidget key="weather_widget" />,
-    <Card key="test_widget">Pandas are pretty sweet</Card>,
-    <NewsWidget key={"news_widget"}/>,
-  ],
-  test: [
-    <Card key="test_widget">Pandas are pretty sweet</Card>,
-  ]
-}
 
 export default function Home() {
-  const debug = Debug("home");
-
-  const searchParams = useSearchParams()
- 
-  let dashName = searchParams.get('dashboard');
-  if (!dashName) {
-    dashName = 'default';
-    debug("No dashboard name found, using default");
-  }
-
-  // const openSheet = useSheet();
-
-  // useEffect(() => {
-  //   setTimeout(() => {
-  //     openSheet(MyContentComponent)
-  //   }, 2000)
-  // })
-
   return (
     <main>
       <QueryClientProvider client={new QueryClient()}>
-        {/* Note: we need this outside of SheetProvider because the WidgetControll sheet is placed here */}
-        <WidgetPropsProvider> 
-          <SheetProvider>
-            <DraggableGridLayout dashboard={dashName}>
-              {dashboards[dashName as keyof typeof dashboards]}
-            </DraggableGridLayout>
-            <Background />
+        <DialogProvider>
+          <ResponsiveGridLayout>
+            {/* add these here so they get wrapped in the context */}
             <Toaster />
-          </SheetProvider>
-        </WidgetPropsProvider>
+            <TopBar />
+          </ResponsiveGridLayout>
+        </DialogProvider>
       </QueryClientProvider>
     </main>
   );

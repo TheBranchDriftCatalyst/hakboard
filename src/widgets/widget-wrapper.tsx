@@ -97,10 +97,7 @@ const WidgetWrapper = <T extends object>(
     (props, ref) => {
       // TODO: this is going to move to custom provider, for now its using leva
       // const widgetProps = useState(defaultProps);
-      const [widgetProps, setWidgetProps] = useControls(
-        WrappedWidget.name,
-        defaultProps
-      );
+      const [widgetProps, setWidgetProps] = useControls(WrappedWidget.name, defaultProps);
 
       const width = parseFloat(props.style?.width as string);
       const height = parseFloat(props.style?.height as string);

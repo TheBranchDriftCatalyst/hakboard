@@ -47,7 +47,7 @@ const defaultBreakpoints = {
   // '2xs': 60,
   // 'xs': 90,
   // 'sm': 120,
-  // 'base': 150,
+  'base': 150,
   // 'lg': 180,
   // 'xl': 210,
   // '2xl': 240,
@@ -55,7 +55,7 @@ const defaultBreakpoints = {
   // '4xl': 300,
   // '5xl': 330,
   // '6xl': 360,
-};
+} as Record<string, number>;
 
 const ResponsiveTypography = React.forwardRef<HTMLDivElement, ResponsiveTypographyProps>(
   ({ tag, size, className, asChild = false, children, breakpoints = defaultBreakpoints, ...props }, ref) => {
@@ -66,15 +66,18 @@ const ResponsiveTypography = React.forwardRef<HTMLDivElement, ResponsiveTypograp
 
     // Determine the appropriate size based on the widget's width and breakpoints
     for (const [breakpointSize, breakpointWidth] of Object.entries(breakpoints)) {
-      if (width >= breakpointWidth) {
-        adjustedSize = breakpointSize;
+      if (width >= (breakpointWidth as number)) {
+        // @ts-ignore (TODO: tslint - fix this one first, mix fix the others)
+        adjustedSize = breakpointSize
       } else {
         break; // Stop iterating once the width is less than the breakpoint width
       }
     }
 
     return (
+      // @ts-ignore
       <Comp 
+        // @ts-ignore
         className={cn(typographyVariants({ size: adjustedSize, className }))}
         ref={ref} 
         {...props}
@@ -84,6 +87,9 @@ const ResponsiveTypography = React.forwardRef<HTMLDivElement, ResponsiveTypograp
     );
   }
 );
+// tslint:enable
+
+ResponsiveTypography.displayName = 'ResponsiveTypography';
 
 export { ResponsiveTypography, typographyVariants }
 

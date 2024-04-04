@@ -1,6 +1,7 @@
 "use client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
+import Background from "@/components/Background";
 import ResponsiveGridLayout from "@/components/ResponsiveGridLayout";
 import { TopBar } from "@/components/TopBar/TopBar";
 import { DialogProvider } from "@/components/ui/dialog";
@@ -17,6 +18,7 @@ export default function Home() {
             <TopBar />
           </ResponsiveGridLayout>
         </DialogProvider>
+        <Background />
       </QueryClientProvider>
     </main>
   );

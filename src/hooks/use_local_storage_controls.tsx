@@ -16,13 +16,16 @@ export const setToLocalStorage = (key: string, value: any) => {
   localStorage.setItem(key, JSON.stringify(value));
 };
 
-export const getSavedLayoutNames = (): string[] => {
+export const getSavedLayoutNames = (): string[] | void => {
+  if (typeof window === 'undefined') {
+    return; // Return default value if localStorage is not available
+  }
   const layoutNames =  Object.keys(localStorage)
-    .filter((key) => key.startsWith("layout:"))
+    .filter((key) => key.startsWith("layout:") || key === "layout:dirty")
     .map((key) => key.split(":")[1]);
     console.log('getting saved layout names', layoutNames);
     
-    return without(layoutNames, "dirty");
+    return layoutNames
 };
 
 // Why are we doing this?

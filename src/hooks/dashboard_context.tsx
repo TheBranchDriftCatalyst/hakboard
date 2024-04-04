@@ -2,7 +2,7 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import { Layout } from 'react-grid-layout';
 import { Card } from '@/components/ui/card';
 import { useLocalStorageControl, setToLocalStorage, getSavedLayoutNames, getFromLocalStorage } from './use_local_storage_controls';
-import { set } from 'lodash';
+import { set, uniq } from 'lodash';
 
 const SAMPLE_LAYOUT: Layout[] = [
   { w: 10, h: 10, x: 0, y: 0, i: 'rand_id_todo' },
@@ -36,7 +36,7 @@ export const DashboardContextProvider: React.FC<{ children: React.ReactNode }> =
   const [currentLayoutName, setCurrentLayoutName] = useLocalStorageControl('current_layout', 'default');
   const [savedLayoutNames, setSavedLayoutNames] = useLocalStorageControl('layouts', getSavedLayoutNames());
   const [layout, setLayout] = useLocalStorageControl('layout:dirty', SAMPLE_LAYOUT);
-  const [isDirty, setIsDirty] = useState(true);
+  const [isDirty, setIsDirty] = useLocalStorageControl('isDirty', false);
 
   const dashboardItems = layout.map((item: Layout) => (
     <Card key={item.i} data-grid={item}>Testing</Card>
@@ -49,8 +49,9 @@ export const DashboardContextProvider: React.FC<{ children: React.ReactNode }> =
   const onSaveLayout = (name: string) => {
     setToLocalStorage(`layout:${name}`, layout);
     setCurrentLayoutName(name);
-    setSavedLayoutNames((prevNames) => [...prevNames, name]);
+    setSavedLayoutNames((prevNames: string[]) => uniq([...prevNames, name]));
     setToLocalStorage('layout:dirty', layout);
+    setIsDirty(false);
   };
 
   const onLoadLayout = (layoutName: string) => {
@@ -58,18 +59,16 @@ export const DashboardContextProvider: React.FC<{ children: React.ReactNode }> =
     onLayoutChange(loadedLayout);
     setCurrentLayoutName(layoutName);
     setToLocalStorage('layout:dirty', loadedLayout);
+    setIsDirty(false);
   };
 
   const onClearLayout = () => {
     onLayoutChange([]);
   };
 
-  const onLayoutChange = (newLayout: Layout[]) => {
+  const onLayoutChange = (newLayout: Layout[], setDirty = true) => {
     setLayout(newLayout);
-  }
-
-  const onDragableChange = (newLayout: Layout[]) => {
-    setLayout(newLayout);
+    setDirty && setIsDirty(true);
   }
 
   return (

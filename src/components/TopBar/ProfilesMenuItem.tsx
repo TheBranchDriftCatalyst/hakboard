@@ -28,8 +28,9 @@ export const LoadProfilesMenu = () => {
           <MenubarRadioGroup
             value={currentLayoutName}
             onValueChange={onLoadLayout}
+            suppressHydrationWarning
           >
-            {savedLayoutNames.map((item) => (
+            {savedLayoutNames?.map((item) => (
               <MenubarRadioItem
                 className="MenubarRadioItem inset"
                 key={item}

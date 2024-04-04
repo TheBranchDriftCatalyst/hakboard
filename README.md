@@ -14,6 +14,12 @@ It includes interactive widgets, seamless Notion integration for real-time data 
     - OTher Datasources to include data around transcoding/etl pipelines
   - Home Assistant Integrations (low low priority when i decide i need HA)
 
+
+TODO: re-integrate innercircle-divergent branch
+  - [ ] grid control layers dashboard contexts etc
+  - need to be reconnected to the widget HOC wrapper etc
+  - github actions workflow
+
 ## Status
 
 None of these components are fully implemented yet but the POCs are working more or less

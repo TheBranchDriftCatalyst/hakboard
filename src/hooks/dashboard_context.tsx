@@ -1,97 +1,95 @@
-"use client;";
-
-import { Card } from "@/components/ui/card";
-import { Layout } from "react-grid-layout";
-import {
-  createContext,
-  useState,
-  useContext,
-  useCallback,
-  useEffect,
-} from "react";
-import { setToLocalStorage, getSavedLayoutNames, getFromLocalStorage, useLocalStorageControl as useLocalStorageControls } from "./use_local_storage_controls";
-import NoSsr from "@/components/NoSSR";
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import { Layout } from 'react-grid-layout';
+import { Card } from '@/components/ui/card';
+import { useLocalStorageControl, setToLocalStorage, getSavedLayoutNames, getFromLocalStorage } from './use_local_storage_controls';
+import { set } from 'lodash';
 
 const SAMPLE_LAYOUT: Layout[] = [
-  { w: 10, h: 10, x: 0, y: 0, i: "rand_id_todo" },
+  { w: 10, h: 10, x: 0, y: 0, i: 'rand_id_todo' },
 ];
 
 const DashboardContext = createContext<{
   dashboardItems: React.ReactNode[];
   layout: Layout[];
-  setLayout: React.Dispatch<React.SetStateAction<Layout[]>>;
-  addWidgetToLayout: (widget: Layout) => void;
-  saveLayoutAs: (name: string) => void;
-  loadLayout: (name: string) => void;
+  onLayoutChange: (newLayout: Layout[]) => void;
+  onAddWidget: (widget: Layout) => void;
+  onSaveLayout: (name: string) => void;
+  onLoadLayout: (name: string) => void;
   savedLayoutNames: string[];
   currentLayoutName: string;
-  clearLayout: () => void;
+  onClearLayout: () => void;
+  isDirty: boolean;
 }>({
   dashboardItems: [],
   layout: [],
-  setLayout: () => {},
-  addWidgetToLayout: () => {},
-  saveLayoutAs: () => {},
-  loadLayout: () => {},
+  onLayoutChange: () => [],
+  onAddWidget: () => {},
+  onSaveLayout: () => {},
+  onLoadLayout: () => {},
   savedLayoutNames: [],
-  currentLayoutName: "",
-  clearLayout : () => {},
+  currentLayoutName: '',
+  onClearLayout: () => {},
+  isDirty: false,
 });
 
-export const DashboardContextProvider: React.FC<{
-  children: React.ReactNode;
-}> = ({ children }) => {
-
-  // NOTE: these all need to be serializable by default, only caveat (cants serialize ReactNodes)
-  const [currentLayoutName, setCurrentLayoutName] = useLocalStorageControls("current_layout", "default");
-  const [savedLayoutNames, setSavedLayoutNames] = useLocalStorageControls("saved_layouts", []);
-  const [layout, setLayout] = useLocalStorageControls(`layout:${currentLayoutName || "default"}`, SAMPLE_LAYOUT);
+export const DashboardContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [currentLayoutName, setCurrentLayoutName] = useLocalStorageControl('current_layout', 'default');
+  const [savedLayoutNames, setSavedLayoutNames] = useLocalStorageControl('layouts', getSavedLayoutNames());
+  const [layout, setLayout] = useLocalStorageControl('layout:dirty', SAMPLE_LAYOUT);
+  const [isDirty, setIsDirty] = useState(true);
 
   const dashboardItems = layout.map((item: Layout) => (
-    <Card key={item.i} data-grid={item}>
-      {/* Can add a hoverable trash icon here so that you can remove widgets */}
-      Testing
-    </Card>
+    <Card key={item.i} data-grid={item}>Testing</Card>
   ));
 
-
-  const addWidgetToLayout = (newWidget: Layout) => {
-    setLayout((prevLayout: Layout[]) => [...prevLayout, newWidget]);
-  }
-  
-  const saveLayoutAs = (name: string) => {
-    console.log(`Saving layout as ${name}`);
-    setToLocalStorage(`layout:${name}`, layout);
-    setCurrentLayoutName(name);
-    setSavedLayoutNames(getSavedLayoutNames());
-  }
-
-  const loadLayout =(layoutName: string) => {
-    const loadedLayout = getFromLocalStorage(`layout:${layoutName}`, SAMPLE_LAYOUT);
-    setLayout(loadedLayout);
-    setCurrentLayoutName(layoutName);
+  const onAddWidget = (newWidget: Layout) => {
+    onLayoutChange([...layout, newWidget]);
   };
 
+  const onSaveLayout = (name: string) => {
+    setToLocalStorage(`layout:${name}`, layout);
+    setCurrentLayoutName(name);
+    setSavedLayoutNames((prevNames) => [...prevNames, name]);
+    setToLocalStorage('layout:dirty', layout);
+  };
+
+  const onLoadLayout = (layoutName: string) => {
+    const loadedLayout = getFromLocalStorage(`layout:${layoutName}`, SAMPLE_LAYOUT);
+    onLayoutChange(loadedLayout);
+    setCurrentLayoutName(layoutName);
+    setToLocalStorage('layout:dirty', loadedLayout);
+  };
+
+  const onClearLayout = () => {
+    onLayoutChange([]);
+  };
+
+  const onLayoutChange = (newLayout: Layout[]) => {
+    setLayout(newLayout);
+  }
+
+  const onDragableChange = (newLayout: Layout[]) => {
+    setLayout(newLayout);
+  }
+
   return (
-    <NoSsr>
-      <DashboardContext.Provider
-        value={{
-          dashboardItems,
-          currentLayoutName,
-          layout,
-          setLayout, // Used to save layout to local storage when the layout changes
-          addWidgetToLayout,
-          saveLayoutAs,
-          loadLayout,
-          savedLayoutNames,
-          clearLayout: () => setLayout([]),
-        }}
-      >
-        {children}
-      </DashboardContext.Provider>
-    </NoSsr>
+    <DashboardContext.Provider
+      value={{
+        dashboardItems,
+        layout,
+        onLayoutChange,
+        onAddWidget,
+        onSaveLayout,
+        onLoadLayout,
+        savedLayoutNames,
+        currentLayoutName,
+        onClearLayout,
+        isDirty,
+      }}
+    >
+      {children}
+    </DashboardContext.Provider>
   );
 };
 
 export const useDashboardContext = () => useContext(DashboardContext);
-

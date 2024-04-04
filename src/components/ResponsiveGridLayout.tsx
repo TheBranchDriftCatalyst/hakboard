@@ -5,17 +5,18 @@ import { Layout, Responsive, WidthProvider } from 'react-grid-layout';
 import { Card } from './ui/card';
 import Debug from 'debug';
 import { DashboardContextProvider, useDashboardContext } from '@/hooks/dashboard_context';
+import { debounce } from 'lodash';
 
 const debug = Debug('ResponsiveGridLayout')
 
 export const ResponsiveGridLayout = () => {
-  const { dashboardItems, layout, setLayout } = useDashboardContext();
+  const { dashboardItems, layout, onLayoutChange } = useDashboardContext();
   const ResponsiveGridLayout = useMemo(() => WidthProvider(Responsive), []);
 
   return (
       <ResponsiveGridLayout
         containerPadding={[5, 5]}
-        onLayoutChange={(newLayout) => setLayout(newLayout)}
+        onLayoutChange={onLayoutChange}
         draggableCancel="button a .no-drag"
         rowHeight={10}
         layouts={{ lg: layout, md: layout, sm: layout, xs: layout, xxs: layout }}

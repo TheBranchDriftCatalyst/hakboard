@@ -1,5 +1,6 @@
 "use client";
 
+import { without } from "lodash";
 import { useState, useEffect } from "react";
 
 export const getFromLocalStorage = (key: string, defaultValue: any) => {
@@ -16,9 +17,12 @@ export const setToLocalStorage = (key: string, value: any) => {
 };
 
 export const getSavedLayoutNames = (): string[] => {
-  return Object.keys(localStorage)
+  const layoutNames =  Object.keys(localStorage)
     .filter((key) => key.startsWith("layout:"))
     .map((key) => key.split(":")[1]);
+    console.log('getting saved layout names', layoutNames);
+    
+    return without(layoutNames, "dirty");
 };
 
 // Why are we doing this?

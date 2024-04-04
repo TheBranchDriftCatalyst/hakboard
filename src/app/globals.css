@@ -70,6 +70,16 @@
   transform: rotate(45deg);
 }
 
+.react-grid-item>.react-resizable-handle::after {
+  content: "";
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 15px;
+  height: 15px;
+  border-right: 2px solid var(--primary) ;
+  border-bottom: 2px solid var(--primary)
+}
 
 
 @layer base {

@@ -1,0 +1,20 @@
+apiVersion: skaffold/v2beta14
+kind: Config
+metadata:
+  name: mongodb-example
+deploy:
+  helm:
+    releases:
+    - name: mongodb
+      chartPath: bitnami/mongodb
+      setValueTemplates:
+        auth:
+          rootPassword: "{{.MONGO_ROOT_PASSWORD}}"
+          usernames:
+          - "{{.MONGO_USERNAME}}"
+          passwords:
+          - "{{.MONGO_PASSWORD}}"
+          databases:
+          - innercircle-test
+      setValues:
+        replicaCount: 1

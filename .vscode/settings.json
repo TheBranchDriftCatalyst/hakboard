@@ -1,7 +1,12 @@
 {
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": "explicit",
+        "source.fixAll": "explicit",
+    },
     "cSpell.words": [
         "clsx",
-        "hakboard",
+        "innercircle",
         "Lucide",
         "luxon",
         "notionhq",

@@ -1,30 +1,10 @@
 "use client";
-import GridLayout, {
-  Layout,
-  Responsive,
-  WidthProvider,
-} from "react-grid-layout";
-import {
-  QueryClient,
-  QueryClientProvider,
-  useQuery,
-} from '@tanstack/react-query'
-// import { Resizable } from "react-resizable";
-import { withSize } from 'react-sizeme'
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-import { Toaster } from "@/components/ui/toaster";
-
-import { Card } from "@/components/ui/card";
-import { ClassAttributes, ForwardRefRenderFunction, Fragment, HTMLAttributes, JSX, forwardRef, useEffect, useLayoutEffect, useMemo, useState } from "react";
-import { set } from "lodash";
 import ResponsiveGridLayout from "@/components/ResponsiveGridLayout";
-import { useSearchParams } from 'next/navigation'
-import { useToast } from "@/components/ui/use-toast";
-import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuTrigger, NavigationMenuContent, NavigationMenuLink } from "@radix-ui/react-navigation-menu";
 import { TopBar } from "@/components/TopBar/TopBar";
 import { DialogProvider } from "@/components/ui/dialog";
-
-
+import { Toaster } from "@/components/ui/toaster";
 
 export default function Home() {
   return (

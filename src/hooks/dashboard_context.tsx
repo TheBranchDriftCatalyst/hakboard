@@ -1,8 +1,10 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
-import { Layout } from 'react-grid-layout';
+"use client";
+
 import { Card } from '@/components/ui/card';
-import { useLocalStorageControl, setToLocalStorage, getSavedLayoutNames, getFromLocalStorage } from './use_local_storage_controls';
-import { set, uniq } from 'lodash';
+import { uniq } from 'lodash';
+import React, { createContext, useCallback, useContext } from 'react';
+import { Layout } from 'react-grid-layout';
+import { getFromLocalStorage, getSavedLayoutNames, setToLocalStorage, useLocalStorageControl } from './use_local_storage_controls';
 
 const SAMPLE_LAYOUT: Layout[] = [
   { w: 10, h: 10, x: 0, y: 0, i: 'rand_id_todo' },
@@ -12,9 +14,11 @@ const DashboardContext = createContext<{
   dashboardItems: React.ReactNode[];
   layout: Layout[];
   onLayoutChange: (newLayout: Layout[]) => void;
+  onDragAndResize: (newLayout: Layout[]) => void;
   onAddWidget: (widget: Layout) => void;
   onSaveLayout: (name: string) => void;
   onLoadLayout: (name: string) => void;
+  setIsDirty: (dirty: boolean) => void;
   savedLayoutNames: string[];
   currentLayoutName: string;
   onClearLayout: () => void;
@@ -23,12 +27,14 @@ const DashboardContext = createContext<{
   dashboardItems: [],
   layout: [],
   onLayoutChange: () => [],
-  onAddWidget: () => {},
-  onSaveLayout: () => {},
-  onLoadLayout: () => {},
+  setIsDirty: () => { },
+  onDragAndResize: () => [],
+  onAddWidget: () => { },
+  onSaveLayout: () => { },
+  onLoadLayout: () => { },
   savedLayoutNames: [],
   currentLayoutName: '',
-  onClearLayout: () => {},
+  onClearLayout: () => { },
   isDirty: false,
 });
 
@@ -39,14 +45,16 @@ export const DashboardContextProvider: React.FC<{ children: React.ReactNode }> =
   const [isDirty, setIsDirty] = useLocalStorageControl('isDirty', false);
 
   const dashboardItems = layout.map((item: Layout) => (
-    <Card key={item.i} data-grid={item}>Testing</Card>
+    <Card key={item.i} data-grid={item} className="animate-out fade-out duration-100">Testing</Card>
   ));
 
-  const onAddWidget = (newWidget: Layout) => {
+
+  const onAddWidget = useCallback((newWidget: Layout) => {
     onLayoutChange([...layout, newWidget]);
-  };
+  }, [layout]);
 
   const onSaveLayout = (name: string) => {
+    console.log('onsavelayout', name)
     setToLocalStorage(`layout:${name}`, layout);
     setCurrentLayoutName(name);
     setSavedLayoutNames((prevNames: string[]) => uniq([...prevNames, name]));
@@ -54,21 +62,30 @@ export const DashboardContextProvider: React.FC<{ children: React.ReactNode }> =
     setIsDirty(false);
   };
 
-  const onLoadLayout = (layoutName: string) => {
+  const onLoadLayout = useCallback((layoutName: string) => {
+    console.log('onloadlayout', layoutName)
     const loadedLayout = getFromLocalStorage(`layout:${layoutName}`, SAMPLE_LAYOUT);
     onLayoutChange(loadedLayout);
     setCurrentLayoutName(layoutName);
     setToLocalStorage('layout:dirty', loadedLayout);
     setIsDirty(false);
-  };
+  }, [layout]);
 
   const onClearLayout = () => {
+    console.log
     onLayoutChange([]);
   };
 
-  const onLayoutChange = (newLayout: Layout[], setDirty = true) => {
+  const onLayoutChange = (newLayout: Layout[]) => {
+    console.log('onlayoutchange', newLayout)
     setLayout(newLayout);
-    setDirty && setIsDirty(true);
+    setIsDirty(true);
+  }
+
+  const onDragAndResize = (newLayout: Layout[]) => {
+    console.log('ondragandresize', newLayout)
+    setLayout(newLayout);
+    setIsDirty(true);
   }
 
   return (
@@ -76,6 +93,7 @@ export const DashboardContextProvider: React.FC<{ children: React.ReactNode }> =
       value={{
         dashboardItems,
         layout,
+        onDragAndResize,
         onLayoutChange,
         onAddWidget,
         onSaveLayout,
@@ -84,6 +102,7 @@ export const DashboardContextProvider: React.FC<{ children: React.ReactNode }> =
         currentLayoutName,
         onClearLayout,
         isDirty,
+        setIsDirty,
       }}
     >
       {children}

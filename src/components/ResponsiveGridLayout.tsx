@@ -1,22 +1,22 @@
 "use client";
 
-import React, { useEffect, useMemo, useState, createContext, useContext, ReactNode } from 'react';
-import { Layout, Responsive, WidthProvider } from 'react-grid-layout';
-import { Card } from './ui/card';
-import Debug from 'debug';
 import { DashboardContextProvider, useDashboardContext } from '@/hooks/dashboard_context';
-import { debounce } from 'lodash';
+import Debug from 'debug';
+import { ReactNode, useEffect, useMemo, useState } from 'react';
+import { Responsive, WidthProvider } from 'react-grid-layout';
 
 const debug = Debug('ResponsiveGridLayout')
 
 export const ResponsiveGridLayout = () => {
-  const { dashboardItems, layout, onLayoutChange } = useDashboardContext();
+  const { dashboardItems, layout, onDragAndResize } = useDashboardContext();
   const ResponsiveGridLayout = useMemo(() => WidthProvider(Responsive), []);
 
   return (
       <ResponsiveGridLayout
+        onDragStop={(layout) => onDragAndResize(layout)}
+        onResizeStop={(layout) => onDragAndResize(layout)}
         containerPadding={[5, 5]}
-        onLayoutChange={onLayoutChange}
+        // onLayoutChange={(layout) => onDragAndResize(layout)}
         draggableCancel="button a .no-drag"
         rowHeight={10}
         layouts={{ lg: layout, md: layout, sm: layout, xs: layout, xxs: layout }}
@@ -29,6 +29,19 @@ export const ResponsiveGridLayout = () => {
 };
 
 export const DashboardLayout = ({children}: { children: ReactNode }) => {
+
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+    return () => setIsMounted(false);
+  }, []);
+
+  if (!isMounted) {
+    return null; // Do not render if not mounted
+  }
+
+
   return (
     <DashboardContextProvider>
       {children}

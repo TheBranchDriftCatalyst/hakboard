@@ -1,16 +1,16 @@
 "use client";
-import { useDashboardContext } from "@/hooks/dashboard_context";
 import {
-  MenubarMenu,
-  MenubarTrigger,
-  MenubarPortal,
   MenubarContent,
+  MenubarMenu,
+  MenubarPortal,
   MenubarRadioGroup,
   MenubarRadioItem,
+  MenubarTrigger,
 } from "@/components/ui/menubar";
+import { useDashboardContext } from "@/hooks/dashboard_context";
 
 export const LoadProfilesMenu = () => {
-  const { onAddWidget, currentLayoutName, onLoadLayout, savedLayoutNames, isDirty } =
+  const { onAddWidget, currentLayoutName, onLoadLayout, savedLayoutNames, isDirty, setIsDirty } =
     useDashboardContext();
 
   return (
@@ -27,7 +27,10 @@ export const LoadProfilesMenu = () => {
         >
           <MenubarRadioGroup
             value={currentLayoutName}
-            onValueChange={onLoadLayout}
+            onValueChange={(val) => {
+              onLoadLayout(val);
+              setIsDirty(false)
+            }}
             suppressHydrationWarning
           >
             {savedLayoutNames?.map((item) => (

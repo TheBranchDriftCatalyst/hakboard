@@ -1,25 +1,14 @@
 "use client";
 
+import { useDialog } from "@/components/ui/dialog";
 import {
   Menubar,
   MenubarMenu,
-  MenubarTrigger,
-  MenubarContent,
-  MenubarItem,
-  MenubarSeparator,
-  MenubarPortal,
-  MenubarRadioGroup,
-  MenubarRadioItem,
+  MenubarTrigger
 } from "@/components/ui/menubar";
-import { MenubarShortcut } from "../ui/menubar";
-import { use, useCallback, useRef, useState } from "react";
 import { useDashboardContext } from "@/hooks/dashboard_context";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, useDialog } from "../ui/dialog";
 import { generateRandomId, generateRandomSize } from "@/lib/utils";
 import { Layout } from "react-grid-layout";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
-import { Label } from "../ui/label";
 import LoadProfilesMenu from "./ProfilesMenuItem";
 import SaveDialog from "./SaveMenuItem";
 

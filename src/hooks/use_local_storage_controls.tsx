@@ -1,7 +1,6 @@
 "use client";
 
-import { without } from "lodash";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export const getFromLocalStorage = (key: string, defaultValue: any) => {
   if (typeof window === 'undefined') {
@@ -20,12 +19,9 @@ export const getSavedLayoutNames = (): string[] | void => {
   if (typeof window === 'undefined') {
     return; // Return default value if localStorage is not available
   }
-  const layoutNames =  Object.keys(localStorage)
-    .filter((key) => key.startsWith("layout:") || key === "layout:dirty")
-    .map((key) => key.split(":")[1]);
-    console.log('getting saved layout names', layoutNames);
-    
-    return layoutNames
+  return Object.keys(localStorage)
+      .filter((key) => key.startsWith("layout:") || key === "layout:dirty")
+      .map((key) => key.split(":")[1]);
 };
 
 // Why are we doing this?

@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { uniq } from 'lodash';
 import React, { createContext, useCallback, useContext } from 'react';
 import { Layout } from 'react-grid-layout';
-import { getFromLocalStorage, getSavedLayoutNames, setToLocalStorage, useLocalStorageControl } from './use_local_storage_controls';
+import { getFromLocalStorage, getSavedLayoutNames, setToLocalStorage, useLocalStorageControl } from './local_storage_control';
 
 const SAMPLE_LAYOUT: Layout[] = [
   { w: 10, h: 10, x: 0, y: 0, i: 'rand_id_todo' },

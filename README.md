@@ -51,7 +51,7 @@ Tech for features not yet implemented
 
 - mongo + prisma ORM for database backend persistence
 - visual testing framework storybook storyshots
-- testing framework Jest
+- behavioral testing framework Jest
 
 ## InnerCircle Task Breakdown
 
@@ -63,14 +63,17 @@ Tech for features not yet implemented
     - [100%] drag
     - [100%] save/load profiles (optional)
 - [100%] github deployment actions workflow (easy- last thing)
-- [95%] localstorage persistence (doneish)
+- [96%] localstorage persistence (doneish)
   - [95%] clean this up a bit, change to ephemeral persistence strategy
+  - [97%] profile persistence
 - [ ] cleanup theme (is a little dark right now)
 - Other stuff
   - [ ] ~database persistence (stretch goal)~
 
+---
+
 # Part 2 Reintegration
 
-> Not part of the innercircle project
+> Not part of the innercircle project.  I focused heavily on the persistence and profile features and i want to pull those layers back into my personal dashboard project
 
 - [ ] back integrate innercircle branch refactors and feature additions (innercircle -> master)

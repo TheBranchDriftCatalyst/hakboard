@@ -45,7 +45,7 @@ export const DashboardContextProvider: React.FC<{ children: React.ReactNode }> =
   const [isDirty, setIsDirty] = useLocalStorageControl('isDirty', false);
 
   const dashboardItems = layout.map((item: Layout) => (
-    <Card key={item.i} data-grid={item} className="animate-out fade-out duration-100">Testing</Card>
+    <Card key={item.i} data-grid={item} className="animate-out fade-out duration-100"></Card>
   ));
 
 

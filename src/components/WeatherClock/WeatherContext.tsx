@@ -1,3 +1,3 @@
 import { createDebugger } from "@/lib/debug";
 
-const debug = createDebugger('weather:context')
+const debug = createDebugger("weather:context");

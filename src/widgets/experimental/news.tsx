@@ -22,7 +22,7 @@ const feeds = [
 
 const fetchArticlesFromFeed = async (
   feed_ids: string[],
-  { limit = 50, page = 1, sort = "latest" } = {}
+  { limit = 50, page = 1, sort = "latest" } = {},
 ): Promise<NewsItem[]> => {
   try {
     console.log("Fetching RSS feed");

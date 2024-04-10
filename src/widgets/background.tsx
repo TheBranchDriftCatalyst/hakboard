@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 
 // Define a type for the component props
 interface BackgroundWidgetProps {
@@ -11,11 +11,14 @@ interface BackgroundWidgetProps {
 const defaultProps: BackgroundWidgetProps = {
   opacity: 0.5,
   interval: 30,
-}
+};
 
-const RotatingBackgroundWidget: React.FC<BackgroundWidgetProps> = ({interval, opacity} : BackgroundWidgetProps = defaultProps) => {
-
-  const [currentBackgroundIndex, setCurrentBackgroundIndex] = useState<number>(0);
+const RotatingBackgroundWidget: React.FC<BackgroundWidgetProps> = ({
+  interval,
+  opacity,
+}: BackgroundWidgetProps = defaultProps) => {
+  const [currentBackgroundIndex, setCurrentBackgroundIndex] =
+    useState<number>(0);
 
   const backgrounds = [
     // TODO: get this dynamically from a folder or from dropbox in the future
@@ -23,12 +26,17 @@ const RotatingBackgroundWidget: React.FC<BackgroundWidgetProps> = ({interval, op
     "backgrounds/bg1.jpg",
     "backgrounds/bg2.jpg",
     "backgrounds/bg3.jpg",
-  ]
+  ];
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentBackgroundIndex((prevIndex) => (prevIndex + 1) % backgrounds.length);
-    }, interval || 30 * 1000);
+    const timer = setInterval(
+      () => {
+        setCurrentBackgroundIndex(
+          (prevIndex) => (prevIndex + 1) % backgrounds.length,
+        );
+      },
+      interval || 30 * 1000,
+    );
 
     return () => clearInterval(timer);
   }, [backgrounds.length, interval]);
@@ -37,16 +45,14 @@ const RotatingBackgroundWidget: React.FC<BackgroundWidgetProps> = ({interval, op
     <div
       className="fixed top-0 left-0 h-full w-full z-[-10] bg-center bg-no-repeat bg-cover"
       style={{
-        // TODO: this is going to be something like.... 
+        // TODO: this is going to be something like....
         // getBackgroundFromPRovider(DropboxProvider, "backgrounds") -> urls[]
         backgroundImage: `url(${backgrounds[currentBackgroundIndex]})`,
-        transition: 'background-image 1s ease-in-out',
+        transition: "background-image 1s ease-in-out",
         opacity: opacity, // Add some transparency to the background
       }}
-    >
-    </div>
+    ></div>
   );
 };
 
 export default RotatingBackgroundWidget;
-

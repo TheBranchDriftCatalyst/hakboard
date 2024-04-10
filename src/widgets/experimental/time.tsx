@@ -3,15 +3,15 @@ import ResponsiveTypography from "@/components/ui/typography";
 import { DateTime } from "luxon";
 import { useLayoutEffect, useState } from "react";
 
-const now = (dateFormat = 'DDDD') => {
+const now = (dateFormat = "DDDD") => {
   const datetime = DateTime.local();
   return {
-    hour: datetime.toFormat('hh'),
-    minute: datetime.toFormat('mm'),
-    second: datetime.toFormat('ss'),
+    hour: datetime.toFormat("hh"),
+    minute: datetime.toFormat("mm"),
+    second: datetime.toFormat("ss"),
     ampm: datetime.toFormat("a"),
-    date: datetime.toFormat(dateFormat)
-  }
+    date: datetime.toFormat(dateFormat),
+  };
 };
 
 interface TimeWidgetProps {
@@ -19,17 +19,13 @@ interface TimeWidgetProps {
 }
 
 const defaultProps: TimeWidgetProps = {
-  dateFormat: "DDDD"
-}
+  dateFormat: "DDDD",
+};
 
-const TimeWidget = ({dateFormat}: TimeWidgetProps = defaultProps) => {
-  const [{
-    date,
-    hour,
-    minute,
-    second,
-    ampm
-  }, setTime] = useState(now(dateFormat));
+const TimeWidget = ({ dateFormat }: TimeWidgetProps = defaultProps) => {
+  const [{ date, hour, minute, second, ampm }, setTime] = useState(
+    now(dateFormat),
+  );
 
   useLayoutEffect(() => {
     const interval = setInterval(() => setTime(now(dateFormat)), 1000);
@@ -39,15 +35,19 @@ const TimeWidget = ({dateFormat}: TimeWidgetProps = defaultProps) => {
   return (
     <div className="h-full w-full text-primary">
       <div className={"flex grow flow-row justify-center"}>
-        <ResponsiveTypography size="h2">{hour}:{minute}</ResponsiveTypography>
+        <ResponsiveTypography size="h2">
+          {hour}:{minute}
+        </ResponsiveTypography>
         <span className={"flex flex-col justify-center"}>
-              <ResponsiveTypography size="xs">{second}</ResponsiveTypography>
-              <ResponsiveTypography size="xs">{ampm}</ResponsiveTypography>
-            </span>
+          <ResponsiveTypography size="xs">{second}</ResponsiveTypography>
+          <ResponsiveTypography size="xs">{ampm}</ResponsiveTypography>
+        </span>
       </div>
-      <ResponsiveTypography className={"flex text-s justify-center align-top"}>{date}</ResponsiveTypography>
+      <ResponsiveTypography className={"flex text-s justify-center align-top"}>
+        {date}
+      </ResponsiveTypography>
     </div>
-  )
-}
+  );
+};
 
-export default TimeWidget
+export default TimeWidget;

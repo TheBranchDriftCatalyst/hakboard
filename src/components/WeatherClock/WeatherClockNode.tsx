@@ -8,8 +8,14 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import {
-  Cloud, Droplets, Gauge, Radiation, Sunrise,
-  Sunset, Thermometer, Wind
+  Cloud,
+  Droplets,
+  Gauge,
+  Radiation,
+  Sunrise,
+  Sunset,
+  Thermometer,
+  Wind,
 } from "lucide-react";
 import { DateTime } from "luxon";
 import React from "react";
@@ -17,11 +23,11 @@ import ResponsiveTypography from "../ui/typography";
 import WeatherCondition from "./WeatherCondition";
 import {
   WeatherConditionIFace,
-  WeatherDatumIFace
+  WeatherDatumIFace,
 } from "./providers/OpenWeatherDTO";
 
 import { createDebugger } from "@/lib/debug";
-import 'weather-icons/css/weather-icons.css';
+import "weather-icons/css/weather-icons.css";
 
 interface ClockNodeStyleProps extends React.CSSProperties {
   x: number;
@@ -42,60 +48,80 @@ interface WeatherClockNodeInterface {
 }
 
 export interface WeatherDatumConfig {
-    icon: string;
-    formatter: (value: any) => string;
+  icon: string;
+  formatter: (value: any) => string;
 }
 
-export const WeatherMetric: Partial<Record<keyof WeatherDatumIFace, JSX.Element | WeatherDatumConfig>> = {
-    sunrise: <Sunrise />,
-    sunset: <Sunset />,
-    temp: <Thermometer />,
-    // feels_like: 'Feels Like',
-    pressure: <Gauge />,
-    humidity: <Droplets />,
-    // dew_point: 'Dew Point',
-    uvi: <Radiation />,
-    clouds: <Cloud />,
-    // visibility: <Telescope />,
-    wind_speed: <Wind />,
-    // wind_deg: 'Wind Direction',
-    wind_gust: <Wind />,
-    // rain: 'Rain',
-    // snow: 'Snow',
-}
+export const WeatherMetric: Partial<
+  Record<keyof WeatherDatumIFace, JSX.Element | WeatherDatumConfig>
+> = {
+  sunrise: <Sunrise />,
+  sunset: <Sunset />,
+  temp: <Thermometer />,
+  // feels_like: 'Feels Like',
+  pressure: <Gauge />,
+  humidity: <Droplets />,
+  // dew_point: 'Dew Point',
+  uvi: <Radiation />,
+  clouds: <Cloud />,
+  // visibility: <Telescope />,
+  wind_speed: <Wind />,
+  // wind_deg: 'Wind Direction',
+  wind_gust: <Wind />,
+  // rain: 'Rain',
+  // snow: 'Snow',
+};
 
 //  both getters and formatters in one, no need to separate this yet
-export const WeatherMetricFormatters: Partial<Record<keyof WeatherDatumIFace, (weatherData: WeatherDatumIFace, currentMetric: keyof WeatherDatumIFace) => string>> = {
-    temp: (weatherData, currentMetric) => `${weatherData[currentMetric]}&deg;F`,
-    uvi: (weatherData, currentMetric) => `${weatherData[currentMetric]}`,
-    wind_speed: (weatherData, currentMetric) => `${weatherData[currentMetric]} mph`,
-    wind_gust: (weatherData, currentMetric) => `${weatherData[currentMetric]} mph`,
-    pressure: (weatherData, currentMetric) => `${weatherData[currentMetric]} hPa`,
-    humidity: (weatherData, currentMetric) => `${weatherData[currentMetric]}%`,
-    clouds: (weatherData, currentMetric) => `${weatherData[currentMetric]}%`,
-    sunrise: (weatherData, currentMetric) => DateTime.fromSeconds(weatherData['sunrise']).toLocaleString(DateTime.TIME_SIMPLE),
-    sunset: (weatherData, currentMetric) => DateTime.fromSeconds(weatherData['sunset']).toLocaleString(DateTime.TIME_SIMPLE),
-}
+export const WeatherMetricFormatters: Partial<
+  Record<
+    keyof WeatherDatumIFace,
+    (
+      weatherData: WeatherDatumIFace,
+      currentMetric: keyof WeatherDatumIFace,
+    ) => string
+  >
+> = {
+  temp: (weatherData, currentMetric) => `${weatherData[currentMetric]}&deg;F`,
+  uvi: (weatherData, currentMetric) => `${weatherData[currentMetric]}`,
+  wind_speed: (weatherData, currentMetric) =>
+    `${weatherData[currentMetric]} mph`,
+  wind_gust: (weatherData, currentMetric) =>
+    `${weatherData[currentMetric]} mph`,
+  pressure: (weatherData, currentMetric) => `${weatherData[currentMetric]} hPa`,
+  humidity: (weatherData, currentMetric) => `${weatherData[currentMetric]}%`,
+  clouds: (weatherData, currentMetric) => `${weatherData[currentMetric]}%`,
+  sunrise: (weatherData, currentMetric) =>
+    DateTime.fromSeconds(weatherData["sunrise"]).toLocaleString(
+      DateTime.TIME_SIMPLE,
+    ),
+  sunset: (weatherData, currentMetric) =>
+    DateTime.fromSeconds(weatherData["sunset"]).toLocaleString(
+      DateTime.TIME_SIMPLE,
+    ),
+};
 
 interface WeatherDatumProps {
-    weatherData: WeatherDatumIFace;
-    currentMetric: keyof WeatherDatumIFace;
+  weatherData: WeatherDatumIFace;
+  currentMetric: keyof WeatherDatumIFace;
 }
 
-export const WeatherDatum = ({weatherData, currentMetric}: WeatherDatumProps) => {
+export const WeatherDatum = ({
+  weatherData,
+  currentMetric,
+}: WeatherDatumProps) => {
+  const formatter =
+    WeatherMetricFormatters[currentMetric] ||
+    ((weatherData: WeatherConditionIFace) => weatherData[currentMetric]);
 
-    const formatter = WeatherMetricFormatters[currentMetric] || ((weatherData: WeatherConditionIFace) => weatherData[currentMetric]);
-
-    return (
-        <div className="flex flex-col items-center">
-            <ResponsiveTypography tag="span" size="2xs" className="text-secondary">
-              {formatter(weatherData, currentMetric)}
-            </ResponsiveTypography>
-        </div>
-    )
-}
-
-    
+  return (
+    <div className="flex flex-col items-center">
+      <ResponsiveTypography tag="span" size="2xs" className="text-secondary">
+        {formatter(weatherData, currentMetric)}
+      </ResponsiveTypography>
+    </div>
+  );
+};
 
 export const WeatherClockNode = (props: any) => {
   const debug = createDebugger(`weather:clock:node:${props.hour12}`);
@@ -137,15 +163,18 @@ export const WeatherClockNode = (props: any) => {
                 style={{ ...counterRotationStyles }}
                 className="p-0 text-primary"
               >
-                <WeatherDatum weatherData={weatherData} currentMetric={currentMetric} />
+                <WeatherDatum
+                  weatherData={weatherData}
+                  currentMetric={currentMetric}
+                />
               </div>
               <div
                 style={{ ...counterRotationStyles }}
                 className="w-full h-full flex justify-center items-center"
               >
-                <WeatherCondition 
+                <WeatherCondition
                   code={primaryConditionID}
-                  className={`${isNow ? "text-primary animate-pulse" : ""}`} 
+                  className={`${isNow ? "text-primary animate-pulse" : ""}`}
                   time={""}
                 />
               </div>
@@ -157,7 +186,7 @@ export const WeatherClockNode = (props: any) => {
             <span>
               {weatherData?.dt &&
                 weatherData.dt.toLocaleString(
-                  DateTime.DATETIME_FULL_WITH_SECONDS
+                  DateTime.DATETIME_FULL_WITH_SECONDS,
                 )}
             </span>
             <span>{JSON.stringify(weatherData, null, 2)}</span>

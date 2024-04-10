@@ -1,4 +1,4 @@
-const { Client } = require("@notionhq/client")
+const { Client } = require("@notionhq/client");
 
 // const databases = {
 //   mealprep: "e3e3e3....",
@@ -6,7 +6,6 @@ const { Client } = require("@notionhq/client")
 // }
 
 const enum DatabaseName {
-
   // https://www.notion.so/knowledgedump/abb8da437b3c42a183215270d26b089c?v=fabf6d8183934bf58e54e15f7ef0e601
   mealprep = "e3e3e3....",
 
@@ -20,8 +19,8 @@ const enum DatabaseName {
 // Initializing a client
 export const notion = new Client({
   auth: process.env.NEXT_PUBLIC_NOTION_TOKEN,
-  logLevel: "error"
-})
+  logLevel: "error",
+});
 
 // notion.databases.queryDB = async (dbName: keyof DatabaseName, filter) => {
 //

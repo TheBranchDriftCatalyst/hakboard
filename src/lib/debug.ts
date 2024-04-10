@@ -1,4 +1,4 @@
-import debug from 'debug';
+import debug from "debug";
 
 // Storage map to keep track of registered debuggers
 export const DEBUGGER_MAP: Map<string, debug.Debugger> = new Map();

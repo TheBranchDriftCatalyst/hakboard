@@ -1,6 +1,8 @@
 "use client";
 
-import WidgetWrapper, { useWidgetWidth } from "@/components/ResponsiveGridWidget";
+import WidgetWrapper, {
+  useWidgetWidth,
+} from "@/components/ResponsiveGridWidget";
 import { WeatherClock } from "@/components/WeatherClock/WeatherClock";
 import {
   OpenWeatherDTOInterface,
@@ -24,13 +26,13 @@ const defaultProps: Required<WeatherWidgetProps> = {
 };
 
 export const defaultGridSizes = {
-    w: 20,
-    h: 20,
-}
+  w: 20,
+  h: 20,
+};
 
 const fetchWeather = async (
   long: number | undefined,
-  lat: number | undefined
+  lat: number | undefined,
 ): Promise<OpenWeatherDTOInterface> => {
   const baseUrl: string = "https://api.openweathermap.org/data/3.0/onecall";
   const apiKey = process.env.NEXT_PUBLIC_OPEN_WEATHER_API_KEY;
@@ -52,70 +54,72 @@ const fetchWeather = async (
   }
 };
 
-const debug = createDebugger('weather:widget')
+const debug = createDebugger("weather:widget");
 
 const asyncGeoCoding = async (city: string) => {
-  const dumbMap: Record<string, {lat: number, long: number}> = {
+  const dumbMap: Record<string, { lat: number; long: number }> = {
     denver: { lat: 39.7392, long: -104.9903 },
-  }
-  return dumbMap[city.toLowerCase()]
-}
+  };
+  return dumbMap[city.toLowerCase()];
+};
 
 const WeatherWidget = ({
   city = defaultProps.city,
   metricRotationInterval = defaultProps.metricRotationInterval,
 }: WeatherWidgetProps = defaultProps) => {
-
   // useQuery hook usage
-  const { data: weatherData, isLoading, isError, error } = useQuery({
+  const {
+    data: weatherData,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
     queryKey: ["weather", city],
     queryFn: async () => {
       if (!city) {
         throw new Error("City is required");
       }
       const { lat, long } = await asyncGeoCoding(city);
-      const weatherData = await fetchWeather(long, lat)
+      const weatherData = await fetchWeather(long, lat);
       // convert to a lookup table
-      weatherData.hourly = weatherData.hourly.map((curr: WeatherDatumIFace, index) => {
-        const dt = DateTime.fromSeconds(curr?.dt)
-        curr.dt = dt
-        return curr
-      })
+      weatherData.hourly = weatherData.hourly.map(
+        (curr: WeatherDatumIFace, index) => {
+          const dt = DateTime.fromSeconds(curr?.dt);
+          curr.dt = dt;
+          return curr;
+        },
+      );
 
-      return weatherData
+      return weatherData;
     },
     refetchInterval: 10 * 60000, // 10 minutes
   });
 
-  const [currentMetric, setCurrentMetric] = useState('temp' as OpenWeatherDataMetric)
+  const [currentMetric, setCurrentMetric] = useState(
+    "temp" as OpenWeatherDataMetric,
+  );
 
   useEffect(() => {
     const timerId = setInterval(() => {
-      debug('rotating metric')
-      setCurrentMetric('temp')
-    }, 1000 * metricRotationInterval) // 30 seconds
-    return () => clearInterval(timerId)
-  }, [weatherData, city, metricRotationInterval])
+      debug("rotating metric");
+      setCurrentMetric("temp");
+    }, 1000 * metricRotationInterval); // 30 seconds
+    return () => clearInterval(timerId);
+  }, [weatherData, city, metricRotationInterval]);
 
-  const size = useWidgetWidth()
+  const size = useWidgetWidth();
 
-  debug('weatherData', {
+  debug("weatherData", {
     weatherData,
     isLoading,
     isError,
     error,
-    size
-  })
+    size,
+  });
 
-  return (
-      <WeatherClock 
-        openWeatherData={weatherData}
-        size={size}
-      />
-  );
+  return <WeatherClock openWeatherData={weatherData} size={size} />;
 };
 
 export const WrappedWeatherWidget = WidgetWrapper(WeatherWidget, defaultProps);
 
-export default WrappedWeatherWidget
-
+export default WrappedWeatherWidget;

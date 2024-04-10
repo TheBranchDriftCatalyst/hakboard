@@ -13,7 +13,8 @@ import {
 import { useToast } from "../../ui/use-toast";
 
 export const LoadProfilesMenu = () => {
-  const { compactionType, setCompactionType, COMPACTION_TYPES } = useDashboardContext();
+  const { compactionType, setCompactionType, COMPACTION_TYPES } =
+    useDashboardContext();
   const { toast } = useToast();
 
   return (
@@ -30,8 +31,7 @@ export const LoadProfilesMenu = () => {
         >
           <MenubarRadioGroup
             value={String(compactionType)}
-            onValueChange={(val) => {
-            }}
+            onValueChange={(val) => {}}
             // suppressHydrationWarning
           >
             {COMPACTION_TYPES?.map((item) => (
@@ -44,15 +44,23 @@ export const LoadProfilesMenu = () => {
               </MenubarRadioItem>
             ))}
           </MenubarRadioGroup>
-        <MenubarSeparator />
-        <MenubarItem onClick={() => {
-          localStorage.clear();
-          const timeout = 5000;
-          toast({ duration: timeout, title: 'Storage Cleared', description: "reload required"});
-          setTimeout(() => {
-            window.location.reload();
-          }, timeout);
-        }}>Clear Storage</MenubarItem>
+          <MenubarSeparator />
+          <MenubarItem
+            onClick={() => {
+              localStorage.clear();
+              const timeout = 5000;
+              toast({
+                duration: timeout,
+                title: "Storage Cleared",
+                description: "reload required",
+              });
+              setTimeout(() => {
+                window.location.reload();
+              }, timeout);
+            }}
+          >
+            Clear Storage
+          </MenubarItem>
         </MenubarContent>
       </MenubarPortal>
     </MenubarMenu>

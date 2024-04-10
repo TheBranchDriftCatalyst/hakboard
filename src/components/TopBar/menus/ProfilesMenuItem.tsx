@@ -13,13 +13,21 @@ import {
 import { useToast } from "../../ui/use-toast";
 
 export const LoadProfilesMenu = () => {
-  const { onAddWidget, currentLayoutName, onLoadLayout, savedLayouts, isDirty, setIsDirty } =
-    useDashboardContext();
+  const {
+    onAddWidget,
+    currentLayoutName,
+    onLoadLayout,
+    savedLayouts,
+    isDirty,
+    setIsDirty,
+  } = useDashboardContext();
   const { toast } = useToast();
 
   return (
     <MenubarMenu>
-      <MenubarTrigger className={`MenubarTrigger ${isDirty ? 'text-red-700' : 'text-primary'}`}>
+      <MenubarTrigger
+        className={`MenubarTrigger ${isDirty ? "text-red-700" : "text-primary"}`}
+      >
         Profiles: {currentLayoutName}
       </MenubarTrigger>
       <MenubarPortal>
@@ -33,7 +41,7 @@ export const LoadProfilesMenu = () => {
             value={currentLayoutName}
             onValueChange={(val) => {
               onLoadLayout(val);
-              setIsDirty(false)
+              setIsDirty(false);
             }}
             suppressHydrationWarning
           >
@@ -47,15 +55,23 @@ export const LoadProfilesMenu = () => {
               </MenubarRadioItem>
             ))}
           </MenubarRadioGroup>
-        <MenubarSeparator />
-        <MenubarItem onClick={() => {
-          localStorage.clear();
-          const timeout = 5000;
-          toast({ duration: timeout, title: 'Storage Cleared', description: "reload required"});
-          setTimeout(() => {
-            window.location.reload();
-          }, timeout);
-        }}>Clear Storage</MenubarItem>
+          <MenubarSeparator />
+          <MenubarItem
+            onClick={() => {
+              localStorage.clear();
+              const timeout = 5000;
+              toast({
+                duration: timeout,
+                title: "Storage Cleared",
+                description: "reload required",
+              });
+              setTimeout(() => {
+                window.location.reload();
+              }, timeout);
+            }}
+          >
+            Clear Storage
+          </MenubarItem>
         </MenubarContent>
       </MenubarPortal>
     </MenubarMenu>

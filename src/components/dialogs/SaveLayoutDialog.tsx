@@ -1,5 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { DialogContent, DialogFooter, DialogHeader, DialogTitle, useDialog } from "@/components/ui/dialog";
+import {
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  useDialog,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRef } from "react";
@@ -9,18 +15,18 @@ interface SaveDialogProps {
   currentLayoutName: string;
 }
 
-export const SaveDialog = ({ onSave, currentLayoutName}: SaveDialogProps) => {
+export const SaveDialog = ({ onSave, currentLayoutName }: SaveDialogProps) => {
   const { closeDialog } = useDialog();
   const name_ref = useRef<HTMLInputElement>(null);
 
   const handleSave = () => {
-    console.log('saving layout', name_ref.current?.value || currentLayoutName);
+    console.log("saving layout", name_ref.current?.value || currentLayoutName);
     onSave(name_ref.current?.value || currentLayoutName);
     closeDialog();
   };
 
   const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
+    if (event.key === "Enter") {
       handleSave();
     }
   };

@@ -24,7 +24,6 @@ export interface WeatherClockProps extends SizerProps {
 //   };
 // }
 
-
 // This is one the few times I actually need to use trig!
 // The way this clock is constructed is that we place HourNodes around the circumference of a circle.
 // Each node represents the weather at that hour. Each node need to be rotated around a correct angle then, the inner content is rotated
@@ -35,7 +34,7 @@ export const WeatherClock = ({
   currentMetric,
   size: { width, height },
 }: WeatherClockProps) => {
-  const clockSize = Math.max(Math.min(width, height) * .75, 10);
+  const clockSize = Math.max(Math.min(width, height) * 0.75, 10);
   const radius = clockSize / 2;
 
   const hourlyForecastNodes = openWeatherData?.hourly
@@ -45,14 +44,20 @@ export const WeatherClock = ({
     .map((hourlyWeatherData, index) => {
       const rotationFactor = -((90 * Math.PI) / 180); // rotate counterclockwise 90 degrees, otherwise we start at 3 o-clock, 0=24|12
       const angle = (index / 12) * 2 * Math.PI + rotationFactor; // Angle in radians
-      const [x, y] = [radius * Math.cos(angle) + radius, radius * Math.sin(angle) + radius]
-      const rotationProps = { 
-        x, y, angle, rotationFactor,
+      const [x, y] = [
+        radius * Math.cos(angle) + radius,
+        radius * Math.sin(angle) + radius,
+      ];
+      const rotationProps = {
+        x,
+        y,
+        angle,
+        rotationFactor,
         counterRotationStyles: {
           transform: `rotate(${-angle}rad)`,
         },
       };
-      
+
       return (
         <Fragment key={index}>
           <WeatherClockNode
@@ -72,7 +77,6 @@ export const WeatherClock = ({
         </Fragment>
       );
     });
-
 
   const currentConditions = openWeatherData?.current?.weather[0]?.id;
   const primaryDescription = openWeatherData?.current?.weather[0]?.description;
@@ -105,9 +109,7 @@ export const WeatherClock = ({
           }}
         >
           <div>
-            <div className="text-primary">
-              {currentMetric}  
-            </div>
+            <div className="text-primary">{currentMetric}</div>
             <div className="">{primaryDescription}</div>
           </div>
         </div>

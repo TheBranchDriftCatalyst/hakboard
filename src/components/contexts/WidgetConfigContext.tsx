@@ -1,28 +1,36 @@
-import React, { Dispatch, PropsWithChildren, SetStateAction, createContext, useState } from 'react';
+import React, {
+  Dispatch,
+  PropsWithChildren,
+  SetStateAction,
+  createContext,
+  useState,
+} from "react";
 type WidgetID = string;
 
 interface WidgetConfigMap {
-    [react_state_field: string]: any;
+  [react_state_field: string]: any;
 }
 
 interface ConfigStore {
-    [widget_id: WidgetID]: WidgetConfigMap;
+  [widget_id: WidgetID]: WidgetConfigMap;
 }
 
 export const WidgetConfigContext = createContext<{
-    configStore: ConfigStore;
-    setConfigStore: Dispatch<SetStateAction<ConfigStore>>;
+  configStore: ConfigStore;
+  setConfigStore: Dispatch<SetStateAction<ConfigStore>>;
 }>({
-    configStore: {},
-    setConfigStore: () => {}
+  configStore: {},
+  setConfigStore: () => {},
 });
 
-export const WidgetConfigProvider: React.FC<PropsWithChildren> = ({ children }) => {
-    const [configStore, setConfigStore] = useState<ConfigStore>({});
+export const WidgetConfigProvider: React.FC<PropsWithChildren> = ({
+  children,
+}) => {
+  const [configStore, setConfigStore] = useState<ConfigStore>({});
 
-    return (
-        <WidgetConfigContext.Provider value={{ configStore, setConfigStore }}>
-            {children}
-        </WidgetConfigContext.Provider>
-    );
+  return (
+    <WidgetConfigContext.Provider value={{ configStore, setConfigStore }}>
+      {children}
+    </WidgetConfigContext.Provider>
+  );
 };

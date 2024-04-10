@@ -12,8 +12,12 @@ import { Button } from "../ui/button";
 import LoadProfilesMenu from "./menus/ProfilesMenuItem";
 
 export const TopBar = () => {
-  const [barCollapsed, setBarCollapsed] = useLocalStorageState("topbar:hidden", false);
-  const { onAddWidget, currentLayoutName, onSaveLayout, onClearLayout } = useDashboardContext();
+  const [barCollapsed, setBarCollapsed] = useLocalStorageState(
+    "topbar:hidden",
+    false,
+  );
+  const { onAddWidget, currentLayoutName, onSaveLayout, onClearLayout } =
+    useDashboardContext();
   const { openDialog } = useDialog();
 
   const addBox = () => {
@@ -31,7 +35,10 @@ export const TopBar = () => {
   const handleSave = () => {
     console.log("handling save (opening dialog");
     openDialog(
-      <SaveLayoutDialog onSave={onSaveLayout} currentLayoutName={currentLayoutName} />
+      <SaveLayoutDialog
+        onSave={onSaveLayout}
+        currentLayoutName={currentLayoutName}
+      />,
     );
   };
 

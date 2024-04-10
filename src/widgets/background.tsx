@@ -1,6 +1,5 @@
 "use client";
-import React, { useState, useEffect, use } from 'react';
-import WidgetWrapper from './widget-wrapper';
+import React, { useEffect, useState } from 'react';
 
 // Define a type for the component props
 interface BackgroundWidgetProps {
@@ -14,7 +13,7 @@ const defaultProps: BackgroundWidgetProps = {
   interval: 30,
 }
 
-const BackgroundWidget: React.FC<BackgroundWidgetProps> = ({interval, opacity} : BackgroundWidgetProps = defaultProps) => {
+const RotatingBackgroundWidget: React.FC<BackgroundWidgetProps> = ({interval, opacity} : BackgroundWidgetProps = defaultProps) => {
 
   const [currentBackgroundIndex, setCurrentBackgroundIndex] = useState<number>(0);
 
@@ -31,7 +30,6 @@ const BackgroundWidget: React.FC<BackgroundWidgetProps> = ({interval, opacity} :
       setCurrentBackgroundIndex((prevIndex) => (prevIndex + 1) % backgrounds.length);
     }, interval || 30 * 1000);
 
-    return () => clearInterval(timer);
     return () => clearInterval(timer);
   }, [backgrounds.length, interval]);
 
@@ -50,6 +48,5 @@ const BackgroundWidget: React.FC<BackgroundWidgetProps> = ({interval, opacity} :
   );
 };
 
-export default BackgroundWidget;
+export default RotatingBackgroundWidget;
 
-// export default WidgetWrapper(BackgroundWidget, { opacity: 0.5, interval: 30 });

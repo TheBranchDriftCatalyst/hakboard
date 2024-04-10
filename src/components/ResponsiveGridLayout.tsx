@@ -1,21 +1,22 @@
 "use client";
 
-import { DashboardContextProvider, useDashboardContext } from '@/hooks/dashboard_context';
-import Debug from 'debug';
+import { DashboardContextProvider, useDashboardContext } from '@/components/contexts/LayoutContext';
+import { createDebugger } from '@/lib/debug';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { Responsive, WidthProvider } from 'react-grid-layout';
 
-const debug = Debug('ResponsiveGridLayout')
+const debug = createDebugger('ResponsiveGridLayout')
 
 export const ResponsiveGridLayout = () => {
-  const { dashboardItems, layout, onDragAndResize } = useDashboardContext();
+  const { dashboardItems, layout, onDragAndResize, compactionType } = useDashboardContext();
   const ResponsiveGridLayout = useMemo(() => WidthProvider(Responsive), []);
-
+  debug('layout', layout);
   return (
       <ResponsiveGridLayout
         onDragStop={(layout) => onDragAndResize(layout)}
         onResizeStop={(layout) => onDragAndResize(layout)}
         containerPadding={[5, 5]}
+        compactType={compactionType}
         // onLayoutChange={(layout) => onDragAndResize(layout)}
         draggableCancel="button a .no-drag"
         rowHeight={10}

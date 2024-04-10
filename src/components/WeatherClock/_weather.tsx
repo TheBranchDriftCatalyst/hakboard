@@ -1,27 +1,17 @@
 "use client";
 
-import { useContext, useEffect, useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import WidgetWrapper, { WidgetWidthContext, useWidgetWidth } from "@/widgets/widget-wrapper";
-import mockWeatherResponse from "@/lib/open-weather-api-resp";
+import WidgetWrapper, { useWidgetWidth } from "@/components/ResponsiveGridWidget";
+import { WeatherClock } from "@/components/WeatherClock/WeatherClock";
 import {
   OpenWeatherDTOInterface,
   OpenWeatherDataMetric,
   WeatherDatumIFace,
-} from "@/components/weather-clock/OpenWeatherDTO";
-import { DateTime } from "luxon";
-import axios from "axios";
-import { Button } from "@/components/ui/button";
+} from "@/components/WeatherClock/providers/OpenWeatherDTO";
+import { createDebugger } from "@/lib/debug";
 import { useQuery } from "@tanstack/react-query";
-import { WeatherClock } from "@/components/weather-clock/WeatherClock";
-import Debug  from "debug";
+import axios from "axios";
+import { DateTime } from "luxon";
+import { useEffect, useState } from "react";
 
 interface WeatherWidgetProps {
   city?: string;
@@ -62,7 +52,7 @@ const fetchWeather = async (
   }
 };
 
-const debug = Debug('weather:widget')
+const debug = createDebugger('weather:widget')
 
 const asyncGeoCoding = async (city: string) => {
   const dumbMap: Record<string, {lat: number, long: number}> = {

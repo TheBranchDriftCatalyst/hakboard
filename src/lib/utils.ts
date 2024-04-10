@@ -5,8 +5,8 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export const generateRandomId = () => {
-  return `rand_id_${Math.random().toString(36).substr(2, 9)}`;
+export const generateRandomWidgetID = (widgetType = 'text') => {
+  return `${widgetType}::${Math.random().toString(36).substr(2, 9)}`;
 };
 
 export const generateRandomSize = () => {

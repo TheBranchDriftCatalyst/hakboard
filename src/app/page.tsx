@@ -5,7 +5,7 @@ import ResponsiveGridLayout from "@/components/ResponsiveGridLayout";
 import { TopBar } from "@/components/TopBar/TopBar";
 import { DialogProvider } from "@/components/ui/dialog";
 import { Toaster } from "@/components/ui/toaster";
-import Background from "@/widgets/background";
+import Background from "@/widgets/Background";
 
 export default function Home() {
   return (

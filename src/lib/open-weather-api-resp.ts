@@ -1,4 +1,4 @@
-export default {
+const openWeatherSampleResponse = {
   "lat": 39.7392,
   "lon": -104.9903,
   "timezone": "America/Denver",
@@ -143,3 +143,5 @@ export default {
     },
   ]
 }
+
+export default openWeatherSampleResponse;

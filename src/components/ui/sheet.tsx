@@ -1,9 +1,9 @@
 "use client";
 
-import * as React from "react";
 import * as SheetPrimitive from "@radix-ui/react-dialog";
 import { cva, type VariantProps } from "class-variance-authority";
 import { X } from "lucide-react";
+import * as React from "react";
 
 import { cn } from "@/lib/utils";
 import { useContext, useState } from "react";
@@ -38,7 +38,7 @@ export const useSheet = () => {
   return context;
 };
 
-export const SheetProvider = ({ children }) => {
+export const SheetProvider = ({ children }: React.PropsWithChildren) => {
   const [content, setContent] = useState<React.ComponentType | null>(null);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -182,14 +182,7 @@ const SheetDescription = React.forwardRef<
 SheetDescription.displayName = SheetPrimitive.Description.displayName;
 
 export {
-  Sheet,
-  SheetPortal,
-  SheetOverlay,
-  SheetTrigger,
-  SheetClose,
-  SheetContent,
-  SheetHeader,
-  SheetFooter,
-  SheetTitle,
-  SheetDescription,
+  Sheet, SheetClose,
+  SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetOverlay, SheetPortal, SheetTitle, SheetTrigger
 };
+

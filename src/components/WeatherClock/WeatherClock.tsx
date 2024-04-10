@@ -1,16 +1,10 @@
-import React, { useState, useEffect, useMemo, Fragment } from "react";
+import Debug from "debug";
+import { Fragment } from "react";
+import WeatherClockNode from "./WeatherClockNode";
 import {
   OpenWeatherDTOInterface,
   OpenWeatherDataMetric,
-} from "./OpenWeatherDTO";
-import { SizeMe } from "react-sizeme";
-import { Cloud } from "lucide-react";
-import Debug from "debug";
-import WeatherClockNode from "./WeatherClockNode";
-import { DateTime } from "luxon";
-import { chain } from "lodash";
-import { useSheet } from "../ui/sheet";
-import WidgetControls from "../sheets/WidgetControlSheet";
+} from "./providers/OpenWeatherDTO";
 
 const debug = Debug("weather:clock");
 
@@ -51,8 +45,7 @@ export const WeatherClock = ({
     .map((hourlyWeatherData, index) => {
       const rotationFactor = -((90 * Math.PI) / 180); // rotate counterclockwise 90 degrees, otherwise we start at 3 o-clock, 0=24|12
       const angle = (index / 12) * 2 * Math.PI + rotationFactor; // Angle in radians
-      const x = radius * Math.cos(angle) + radius;
-      const y = radius * Math.sin(angle) + radius;
+      const [x, y] = [radius * Math.cos(angle) + radius, radius * Math.sin(angle) + radius]
       const rotationProps = { 
         x, y, angle, rotationFactor,
         counterRotationStyles: {
@@ -66,7 +59,7 @@ export const WeatherClock = ({
             rotation={rotationProps}
             currentMetric={currentMetric}
             weatherData={hourlyWeatherData}
-            isSunset={openWeatherData?.current?.sunsettermter}
+            isSunset={openWeatherData?.current?.sunset}
             isSunrise={openWeatherData?.current?.sunrise}
             style={{
               position: "absolute",

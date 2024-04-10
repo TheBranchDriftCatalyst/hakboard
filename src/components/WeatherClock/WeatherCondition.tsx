@@ -1,10 +1,13 @@
 import 'weather-icons/css/weather-icons.css';
 
-import localFont from 'next/font/local'
-import { OpenWeatherConditionCodes } from './OpenWeatherDTO';
+import { createDebugger } from '@/lib/debug';
+import localFont from 'next/font/local';
 import ResponsiveTypography from '../ui/typography';
+import { OpenWeatherConditionCodes } from './providers/OpenWeatherDTO';
 
 const myFont = localFont({ src: '../../../node_modules/weather-icons/font/weathericons-regular-webfont.woff' })
+
+const debug = createDebugger('weather:condition')
 
 interface WeatherConditionProps {
     time: string;

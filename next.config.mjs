@@ -4,6 +4,9 @@ import BrowserSyncPlugin from "browser-sync-webpack-plugin";
 const nextConfig = {
   reactStrictMode: true,
   productionBrowserSourceMaps: true,
+  // sassOptions: {
+  //   includePaths: ["./src/**/*.(scss|sass)"],
+  // },
   async headers() {
     return [
       {

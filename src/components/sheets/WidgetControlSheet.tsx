@@ -1,17 +1,18 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import { SheetHeader, SheetTitle, SheetClose } from '../ui/sheet';
+import { createDebugger } from '@/lib/debug';
 import { map } from 'lodash';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { ScrollArea } from '../ui/scroll-area';
+import { SheetHeader, SheetTitle } from '../ui/sheet';
 
-const debug = require('debug')('widget:controls');
+const debug = createDebugger('widget:controls');
 
 // TODO: Implement an explicit UseControls schema (allows defining control types)
 // TODO: Break this up into some seperate files
@@ -88,7 +89,6 @@ export const useControls = (controlName: keyof WidgetPropsStore, defaultProps: W
 
   return [props, setProps];
 };
-
 
 export const useMasterControls = () => {
   const { widgetProps, updateWidgetProps } = useContext(WidgetPropsContext);

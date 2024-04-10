@@ -1,17 +1,21 @@
 "use client";
+import { useDashboardContext } from "@/components/contexts/LayoutContext";
 import {
   MenubarContent,
+  MenubarItem,
   MenubarMenu,
   MenubarPortal,
   MenubarRadioGroup,
   MenubarRadioItem,
+  MenubarSeparator,
   MenubarTrigger,
 } from "@/components/ui/menubar";
-import { useDashboardContext } from "@/hooks/dashboard_context";
+import { useToast } from "../../ui/use-toast";
 
 export const LoadProfilesMenu = () => {
-  const { onAddWidget, currentLayoutName, onLoadLayout, savedLayoutNames, isDirty, setIsDirty } =
+  const { onAddWidget, currentLayoutName, onLoadLayout, savedLayouts, isDirty, setIsDirty } =
     useDashboardContext();
+  const { toast } = useToast();
 
   return (
     <MenubarMenu>
@@ -33,7 +37,7 @@ export const LoadProfilesMenu = () => {
             }}
             suppressHydrationWarning
           >
-            {savedLayoutNames?.map((item) => (
+            {savedLayouts?.map((item) => (
               <MenubarRadioItem
                 className="MenubarRadioItem inset"
                 key={item}
@@ -43,6 +47,15 @@ export const LoadProfilesMenu = () => {
               </MenubarRadioItem>
             ))}
           </MenubarRadioGroup>
+        <MenubarSeparator />
+        <MenubarItem onClick={() => {
+          localStorage.clear();
+          const timeout = 5000;
+          toast({ duration: timeout, title: 'Storage Cleared', description: "reload required"});
+          setTimeout(() => {
+            window.location.reload();
+          }, timeout);
+        }}>Clear Storage</MenubarItem>
         </MenubarContent>
       </MenubarPortal>
     </MenubarMenu>

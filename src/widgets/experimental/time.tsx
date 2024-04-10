@@ -1,9 +1,7 @@
 "use client";
-import {DateTime} from "luxon";
-import {useEffect, useLayoutEffect, useState} from "react";
-import WidgetWrapper from "@/widgets/widget-wrapper";
 import ResponsiveTypography from "@/components/ui/typography";
-import { Responsive } from "react-grid-layout";
+import { DateTime } from "luxon";
+import { useLayoutEffect, useState } from "react";
 
 const now = (dateFormat = 'DDDD') => {
   const datetime = DateTime.local();
@@ -52,4 +50,4 @@ const TimeWidget = ({dateFormat}: TimeWidgetProps = defaultProps) => {
   )
 }
 
-export default WidgetWrapper(TimeWidget, defaultProps);
+export default TimeWidget

@@ -2,44 +2,25 @@
 // - Each node represents the weather at that hour.
 // - The node will contain the temperature, the weather condition, or the time.  We will rotate through the different metrics.
 
-import { Droplets, Gauge, HelpCircle, LucideIcon, Radiation } from "lucide-react";
-import {
-  CloudHail,
-  Sunrise,
-  Sunset,
-  Haze,
-  Tornado,
-  SunMoon,
-  CloudSun,
-  CloudFog,
-  Snowflake,
-  CloudLightning,
-  Cloud,
-  Cloudy,
-  Wind,
-  Thermometer,
-  CloudRainWind,
-  AlarmSmoke,
-  CloudDrizzle,
-  LucideIcon as LucidIcon,
-} from "lucide-react";
-import React, { useMemo } from "react";
-import {
-  OpenWeatherIconMapping,
-  WeatherConditionIFace,
-  WeatherDatumIFace,
-} from "./OpenWeatherDTO";
-import Debug from "debug";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import {
+  Cloud, Droplets, Gauge, Radiation, Sunrise,
+  Sunset, Thermometer, Wind
+} from "lucide-react";
 import { DateTime } from "luxon";
+import React from "react";
 import ResponsiveTypography from "../ui/typography";
 import WeatherCondition from "./WeatherCondition";
-import localFont from 'next/font/local'
+import {
+  WeatherConditionIFace,
+  WeatherDatumIFace
+} from "./providers/OpenWeatherDTO";
 
+import { createDebugger } from "@/lib/debug";
 import 'weather-icons/css/weather-icons.css';
 
 interface ClockNodeStyleProps extends React.CSSProperties {
@@ -117,7 +98,7 @@ export const WeatherDatum = ({weatherData, currentMetric}: WeatherDatumProps) =>
     
 
 export const WeatherClockNode = (props: any) => {
-  const debug = Debug(`weather:clock:node:${props.hour12}`);
+  const debug = createDebugger(`weather:clock:node:${props.hour12}`);
   const { weatherData, style, hour12, currentMetric } = props;
   const { counterRotationStyles, angle } = props.rotation;
   const { weather } = weatherData || { weather: [unknownWeatherCondition] };

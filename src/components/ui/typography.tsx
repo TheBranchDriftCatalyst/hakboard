@@ -1,8 +1,8 @@
-import React from 'react';
-import { cva, type VariantProps } from 'class-variance-authority';
+import { useWidgetWidth } from '@/components/ResponsiveGridWidget';
 import { cn } from '@/lib/utils';
 import { Slot } from '@radix-ui/react-slot';
-import { useWidgetWidth } from '@/widgets/widget-wrapper';
+import { cva, type VariantProps } from 'class-variance-authority';
+import React from 'react';
 
 // type TypographyVariant = keyof typeof variants;
 
@@ -32,22 +32,29 @@ const typographyVariants = cva('', {
   }
 });
 
-interface ResponsiveTypographyProps 
-  extends React.HTMLAttributes<HTMLDivElement>, 
-    VariantProps<typeof typographyVariants>{
+interface ResponsiveTypographyProps extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof typographyVariants> {
   tag?: keyof JSX.IntrinsicElements;
   children?: React.ReactNode;
   asChild?: boolean;
-  breakpoints?: Record<string, number> | {};
+  breakpoints?: Record<TypographySize, number>;
 }
 
-const defaultBreakpoints = {
+type TypographySize = Exclude<VariantProps<typeof typographyVariants>["size"], undefined | null>;
+
+type Entries<T> = {
+    [K in keyof T]: [K, T[K]];
+}[keyof T][];
+
+const getEntries = <T extends object>(obj: T) => Object.entries(defaultBreakpoints) as Entries<T>;
+
+
+const defaultBreakpoints: Partial<Record<TypographySize, number>> = {
   // '4xs': 0,
   // '3xs': 30,
   // '2xs': 60,
   // 'xs': 90,
   // 'sm': 120,
-  // 'base': 150,
+  'base': 150,
   // 'lg': 180,
   // 'xl': 210,
   // '2xl': 240,
@@ -57,25 +64,30 @@ const defaultBreakpoints = {
   // '6xl': 360,
 };
 
+type Entries2<T, K extends keyof T = keyof T> =
+    (K extends unknown ? [K, T[K]] : never)[]
+
 const ResponsiveTypography = React.forwardRef<HTMLDivElement, ResponsiveTypographyProps>(
   ({ tag, size, className, asChild = false, children, breakpoints = defaultBreakpoints, ...props }, ref) => {
     const { width } = useWidgetWidth();
-    const Comp = asChild ? Slot : (tag || "p");
+    const Comp: React.ElementType = asChild ? Slot : (tag || "p");
 
-    let adjustedSize = size;
+    let adjustedSize: TypographySize = size as TypographySize;
 
     // Determine the appropriate size based on the widget's width and breakpoints
     for (const [breakpointSize, breakpointWidth] of Object.entries(breakpoints)) {
       if (width >= breakpointWidth) {
-        adjustedSize = breakpointSize;
+        adjustedSize = breakpointSize as TypographySize;
       } else {
-        break; // Stop iterating once the width is less than the breakpoint width
+        break;
       }
     }
 
+    const classNames = cn(typographyVariants({ size: adjustedSize, className }))
+
     return (
       <Comp 
-        className={cn(typographyVariants({ size: adjustedSize, className }))}
+        className={classNames}
         ref={ref} 
         {...props}
       >
@@ -85,6 +97,8 @@ const ResponsiveTypography = React.forwardRef<HTMLDivElement, ResponsiveTypograp
   }
 );
 
-export { ResponsiveTypography, typographyVariants }
+ResponsiveTypography.displayName = 'ResponsiveTypography';
+
+export { ResponsiveTypography, typographyVariants };
 
 export default ResponsiveTypography;

@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useEffect, useState } from "react";
 // import {parseString} from 'xml2js'; // TODO remove this dependency
-import { Card, CardContent } from "@/components/ui/card";
-import WidgetWrapper from "./widget-wrapper";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import WidgetWrapper from "../../components/ResponsiveGridWidget";
 
 // interface NewsWidgetProps {
 //   feed_bundle_url?: string;

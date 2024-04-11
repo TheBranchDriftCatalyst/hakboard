@@ -2,19 +2,44 @@
 
 import { JSX } from "react/jsx-runtime";
 import IntrinsicAttributes = JSX.IntrinsicAttributes;
+
+import { useWidgetController } from "@/hooks/useWidgetConfigState";
+import * as widgets from "./widgets";
+
 // import { useControls } from "leva";
 // import { WidthProviderProps } from "react-grid-layout";
 
 // NOTE: widget ID is of the form <widgetType>:<widgetId>
 
+const FallbackWidgetComponent = () => {
+  return <div>No widget found</div>;
+}
+
+const getWidgetComponent = (widgetId: string) => {
+  const [widgetType, uuid] = widgetId.split("::");
+
+  const WidgetComponent = widgets[widgetType];
+
+  return WidgetComponent || FallbackWidgetComponent;
+}
+
 const ResponsiveGridWidget = ({ widgetId }: { widgetId: string }) => {
   const [widgetType, uuid] = widgetId.split("::");
 
+  const WidgetComponent = widgets[widgetType];
+
+  const { props: widgetProps } = useWidgetController(widgetId, {
+    stringField: 'Test Widget',
+    boolField: false
+  });
+  
   return (
     <div className="h-full w-full text-primary">
       <div className={"flex grow flow-row justify-center"}>
-        <div>
+        <div className="">
           {widgetType}: {uuid}
+          {JSON.stringify(widgetProps)}
+          {/* {WidgetComponent && <WidgetComponent  {...widgetProps} />} */}
         </div>
       </div>
     </div>
@@ -22,6 +47,7 @@ const ResponsiveGridWidget = ({ widgetId }: { widgetId: string }) => {
 };
 
 export default ResponsiveGridWidget;
+
 
 // // Component is a HOC that wraps the widget components themselves.
 // // It handles saving and reloading the props for each widget to local storage.

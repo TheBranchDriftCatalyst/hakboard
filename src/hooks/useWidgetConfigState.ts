@@ -1,44 +1,48 @@
-import { WidgetConfigContext } from "@/components/contexts/WidgetConfigContext";
+import { WidgetConfigContext, WidgetConfigMap } from "@/components/contexts/WidgetConfigContext";
 import { createDebugger } from "@/lib/debug";
-import { Dispatch, SetStateAction, useContext, useState } from "react";
+import {
+  useContext,
+  useState
+} from "react";
 
 const debug = createDebugger("widget:controller");
 
-export const useWidgetController = (widgetId: string) => {
+/**
+ * Manages the state and configuration of a widget identified by widgetId.
+ * @param {string} widgetId - The unique identifier of the widget.
+ * @param {WidgetConfigMap} initialState - The initial state and configuration of the widget.
+ * @returns {{ props: WidgetConfigMap, setConfigValue: (fieldName: string, value: T) => void }} - An object containing the widget properties and a function to update the configuration values.
+ */
+export const useWidgetController = (
+  widgetId: string,
+  initialState: WidgetConfigMap
+) => {
   const { configStore, setConfigStore } = useContext(WidgetConfigContext);
 
   debug("Initializing controller for widget:", widgetId);
 
+  const [widgetProps, setWidgetProps] = useState<WidgetConfigMap>(() => {
+    return { ...initialState, ...configStore[widgetId] };
+  });
+
   const setConfigValue = <T>(
     fieldName: string,
-    initialValue: T,
-  ): [T, Dispatch<SetStateAction<T>>] => {
-    debug(`Getting initial value for ${fieldName} in widget ${widgetId}`);
-    const [value, setValue] = useState<T>(() => {
-      return configStore[widgetId]?.[fieldName] ?? initialValue;
+    value: T
+  ): void => {
+    debug(`Setting value for ${fieldName} in widget ${widgetId}:`, value);
+    setWidgetProps((prevProps) => {
+      const newProps = { ...prevProps, [fieldName]: value };
+      setConfigStore((prevConfigStore) => ({
+        ...prevConfigStore,
+        [widgetId]: newProps,
+      }));
+      debug(
+        `Updated config store for widget ${widgetId}:`,
+        newProps
+      );
+      return newProps;
     });
-
-    const setControlledValue: Dispatch<SetStateAction<T>> = (newValue) => {
-      debug(`Setting value for ${fieldName} in widget ${widgetId}:`, newValue);
-      setValue(newValue);
-      setConfigStore((prevConfigStore) => {
-        const newConfigStore = {
-          ...prevConfigStore,
-          [widgetId]: {
-            ...prevConfigStore[widgetId],
-            [fieldName]: newValue,
-          },
-        };
-        debug(
-          `Updated config store for widget ${widgetId}:`,
-          newConfigStore[widgetId],
-        );
-        return newConfigStore;
-      });
-    };
-
-    return [value, setControlledValue];
   };
 
-  return { setConfigValue };
+  return { props: widgetProps, setConfigValue };
 };

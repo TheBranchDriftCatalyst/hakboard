@@ -1,6 +1,4 @@
 
-export const WeatherWidgetBack =
-
 export const WeatherWidget = () => {
     return (
     <div>
@@ -8,5 +6,3 @@ export const WeatherWidget = () => {
     </div>
   );
 }
-
-<Widget 

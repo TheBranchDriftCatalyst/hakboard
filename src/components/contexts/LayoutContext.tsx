@@ -14,10 +14,6 @@ import {
 } from "../../hooks/useLocalStorageState";
 const debug = createDebugger("dashboard:context");
 
-const SAMPLE_LAYOUT: Layout[] = [
-  { w: 10, h: 10, x: 0, y: 0, i: "rand_id_todo" },
-];
-
 type CompactionType = "vertical" | "horizontal" | null;
 
 const DashboardContext = createContext<{
@@ -56,7 +52,9 @@ const DashboardContext = createContext<{
 
 import { createDebugger } from "@/lib/debug";
 import { uniq } from "lodash";
+import { Trash, WrenchIcon } from "lucide-react";
 import ResponsiveGridWidget from "../ResponsiveGridWidget";
+import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 
 const getSavedLayouts = (): string[] => {
@@ -68,6 +66,8 @@ const getSavedLayouts = (): string[] => {
     .map((key) => key.split(":")[1]);
 };
 
+const stopProp = (event: React.MouseEvent) => event.stopPropagation();
+
 export const DashboardContextProvider: React.FC<{
   children: React.ReactNode;
 }> = ({
@@ -76,11 +76,11 @@ export const DashboardContextProvider: React.FC<{
 }: Partial<PropsWithChildren<{ widgets: Record<string, Element> }>>) => {
   const [currentLayoutName, setCurrentLayoutName] = useLocalStorageState(
     "current_layout",
-    "default",
+    "default"
   );
   const [layout, setLayout] = useLocalStorageState(
     "layout:dirty",
-    SAMPLE_LAYOUT,
+    [] as (Layout | never)[]
   );
   const [isDirty, setIsDirty] = useLocalStorageState("isDirty", false);
   const [compactionType, setCompactionType] = useLocalStorageState<
@@ -89,7 +89,15 @@ export const DashboardContextProvider: React.FC<{
 
   const [savedLayouts, setSavedLayouts] = useLocalStorageState(
     "savedLayouts",
-    getSavedLayouts(),
+    getSavedLayouts()
+  );
+
+  const handleRemoveWidget = useCallback(
+    (widgetId: string) => () => {
+    setLayout((currentLayout) =>
+      currentLayout.filter((item) => item.i !== widgetId)
+    );
+  }, [layout, setLayout]
   );
 
   const COMPACTION_TYPES: CompactionType[] = ["vertical", "horizontal", null];
@@ -98,9 +106,28 @@ export const DashboardContextProvider: React.FC<{
     <Card
       key={item.i}
       data-grid={item}
-      className="animate-out zoom-out duration-100"
+      className="group animate-out zoom-out duration-100 relative"
     >
+      {/* TODO: maybe, might change these to a consolidated topbar/menubar */}
+      <Button
+        className="z-[40] rounded-full absolute right-0 top-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        variant="ghost"
+        size="icon"
+        onMouseDown={stopProp}
+        onClick={handleRemoveWidget(item.i)}
+      >
+        <Trash className="text-destructive" />
+      </Button>
       <ResponsiveGridWidget widgetId={item.i} />
+      <Button
+        className="z-[40] rounded-full absolute left-0 bottom-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        variant="ghost"
+        size="icon"
+        onMouseDown={stopProp}
+        onClick={() => console.log('TODO')}
+      >
+        <WrenchIcon className="text-primary" />
+      </Button>
     </Card>
   ));
 
@@ -108,21 +135,21 @@ export const DashboardContextProvider: React.FC<{
   //   setSavedLayouts(getSavedLayouts());
   // }, [setSavedLayouts]);
 
-  const onLayoutChange = (newLayout: Layout[]) => {
-    debug("onlayoutchange", newLayout);
+  const onLayoutChange = useCallback((newLayout: Layout[]) => {
+    debug("onLayoutChange", newLayout);
     setLayout(newLayout);
     setIsDirty(true);
-  };
+  }, [setLayout, setIsDirty]);
 
   const onAddWidget = useCallback(
     (newWidget: Layout) => {
       onLayoutChange([...layout, newWidget]);
     },
-    [layout, onLayoutChange],
+    [layout, onLayoutChange]
   );
 
   const onSaveLayout = (name: string) => {
-    debug("onsavelayout", name);
+    debug("onSaveLayout", name);
     setToLocalStorage(`layout:${name}`, layout);
     setCurrentLayoutName(name);
     setToLocalStorage("layout:dirty", layout);
@@ -132,26 +159,25 @@ export const DashboardContextProvider: React.FC<{
 
   const onLoadLayout = useCallback(
     (layoutName: string) => {
-      debug("onloadlayout", layoutName);
+      debug("onLoadLayout", layoutName);
       const loadedLayout = getFromLocalStorage(
         `layout:${layoutName}`,
-        SAMPLE_LAYOUT,
+        [] as (Layout | never)[]
       );
       onLayoutChange(loadedLayout);
       setCurrentLayoutName(layoutName);
       setToLocalStorage("layout:dirty", loadedLayout);
       setIsDirty(false);
     },
-    [layout, onLayoutChange, setCurrentLayoutName, setIsDirty],
+    [layout, onLayoutChange, setCurrentLayoutName, setIsDirty]
   );
 
   const onClearLayout = () => {
-    debug;
     onLayoutChange([]);
   };
 
   const onDragAndResize = (newLayout: Layout[]) => {
-    debug("ondragandresize", newLayout);
+    debug("onDragAndResize", newLayout);
     setLayout(newLayout);
     setIsDirty(true);
   };

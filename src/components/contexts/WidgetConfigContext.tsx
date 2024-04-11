@@ -5,14 +5,13 @@ import React, {
   createContext,
   useState,
 } from "react";
-type WidgetID = string;
 
-interface WidgetConfigMap {
+export interface WidgetConfigMap {
   [react_state_field: string]: any;
 }
 
-interface ConfigStore {
-  [widget_id: WidgetID]: WidgetConfigMap;
+export interface ConfigStore {
+  [widget_id: string]: WidgetConfigMap;
 }
 
 export const WidgetConfigContext = createContext<{
@@ -23,6 +22,7 @@ export const WidgetConfigContext = createContext<{
   setConfigStore: () => {},
 });
 
+//  TODO: lets convert this to a dispatch/reduce, pattern maybe???
 export const WidgetConfigProvider: React.FC<PropsWithChildren> = ({
   children,
 }) => {

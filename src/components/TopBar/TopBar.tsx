@@ -61,7 +61,7 @@ export const TopBar = () => {
   }
 
   return (
-    <Menubar className="opacity-50 absolute z-50 w-full">
+    <Menubar className="opacity-50 z-50 w-full">
       <MenubarMenu>
         <MenubarTrigger onClick={() => setBarCollapsed((a) => !a)}>
           <ArrowLeftToLine className="text-primary h-5 w-5" />

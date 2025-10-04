@@ -3,6 +3,15 @@ import BrowserSyncPlugin from "browser-sync-webpack-plugin";
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: false,
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'openweathermap.org',
+        pathname: '/img/wn/**',
+      },
+    ],
+  },
   async headers() {
     return [
       {

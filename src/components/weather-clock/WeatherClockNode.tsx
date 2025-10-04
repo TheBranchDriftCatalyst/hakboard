@@ -38,9 +38,6 @@ import {
 import { DateTime } from "luxon";
 import ResponsiveTypography from "../ui/typography";
 import WeatherCondition from "./WeatherCondition";
-import localFont from 'next/font/local'
-
-import 'weather-icons/css/weather-icons.css';
 
 interface ClockNodeStyleProps extends React.CSSProperties {
   x: number;
@@ -50,9 +47,11 @@ interface ClockNodeStyleProps extends React.CSSProperties {
 
 const unknownWeatherCondition:
   | WeatherConditionIFace
-  | { id: 9999; description: string } = {
+  | { id: 9999; description: string; icon: string; main: string } = {
   id: 9999,
   description: "unknown condition",
+  icon: "01d",
+  main: "Unknown",
 };
 
 interface WeatherClockNodeInterface {
@@ -121,7 +120,7 @@ export const WeatherClockNode = (props: any) => {
   const { weatherData, style, hour12, currentMetric } = props;
   const { counterRotationStyles, angle } = props.rotation;
   const { weather } = weatherData || { weather: [unknownWeatherCondition] };
-  const [{ id: primaryConditionID, description: primaryDescription }] = weather;
+  const [{ id: primaryConditionID, description: primaryDescription, icon: weatherIcon }] = weather;
   // const ConditionIcon = WeatherConditionCodes[primaryConditionID] as LucideIcon;
   const currentHour24 = new Date().getHours();
 
@@ -162,9 +161,10 @@ export const WeatherClockNode = (props: any) => {
                 style={{ ...counterRotationStyles }}
                 className="w-full h-full flex justify-center items-center"
               >
-                <WeatherCondition 
+                <WeatherCondition
                   code={primaryConditionID}
-                  className={`${isNow ? "text-primary animate-pulse" : ""}`} 
+                  icon={weatherIcon}
+                  className={`${isNow ? "text-primary animate-pulse" : ""}`}
                   time={""}
                 />
               </div>

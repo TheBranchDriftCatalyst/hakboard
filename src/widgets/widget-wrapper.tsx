@@ -31,7 +31,6 @@ import { Button } from "@/components/ui/button";
 // import { useControls } from "leva";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { WidgetPropsProvider, useControls } from "@/components/sheets/WidgetControlSheet";
-// import { WidthProviderProps } from "react-grid-layout-19";
 
 // Component is a HOC that wraps the widget components themselves.
 // It handles saving and reloading the props for each widget to local storage.

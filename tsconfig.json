@@ -21,7 +21,6 @@
     "incremental": true,
     "useDefineForClassFields": true,
 
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     }

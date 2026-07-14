@@ -68,19 +68,26 @@ export interface InstanceRegistration {
   displayName: string;
 }
 
-interface ConfigStore {
-  instances: Record<string, InstanceRegistration>;
+// Split into two contexts:
+//   * InstancesContext — the reactive state (changes on every register/patch)
+//   * ActionsContext   — stable callbacks (register/unregister/patch), never changes
+// Combining them into one context object caused a re-render loop: instances
+// changed -> combined store identity changed -> useEffect in useConfig re-fired
+// -> register() -> instances changed -> ...
+
+interface ConfigActions {
   register: (key: string, schema: ConfigSchema, values: Record<string, unknown>, displayName: string) => void;
   unregister: (key: string) => void;
   patch: (key: string, prop: string, value: unknown) => void;
 }
 
-const ConfigStoreContext = createContext<ConfigStore | null>(null);
+const InstancesContext = createContext<Record<string, InstanceRegistration>>({});
+const ActionsContext = createContext<ConfigActions | null>(null);
 
 export const WidgetConfigProvider = ({ children }: PropsWithChildren) => {
   const [instances, setInstances] = useState<Record<string, InstanceRegistration>>({});
 
-  const register = useCallback<ConfigStore["register"]>((key, schema, values, displayName) => {
+  const register = useCallback<ConfigActions["register"]>((key, schema, values, displayName) => {
     setInstances((prev) => {
       const existing = prev[key];
       // Preserve user-modified values if the instance is already registered.
@@ -89,7 +96,7 @@ export const WidgetConfigProvider = ({ children }: PropsWithChildren) => {
     });
   }, []);
 
-  const unregister = useCallback<ConfigStore["unregister"]>((key) => {
+  const unregister = useCallback<ConfigActions["unregister"]>((key) => {
     setInstances((prev) => {
       if (!(key in prev)) return prev;
       const next = { ...prev };
@@ -98,7 +105,7 @@ export const WidgetConfigProvider = ({ children }: PropsWithChildren) => {
     });
   }, []);
 
-  const patch = useCallback<ConfigStore["patch"]>((key, prop, value) => {
+  const patch = useCallback<ConfigActions["patch"]>((key, prop, value) => {
     setInstances((prev) => {
       const inst = prev[key];
       if (!inst) return prev;
@@ -106,22 +113,26 @@ export const WidgetConfigProvider = ({ children }: PropsWithChildren) => {
     });
   }, []);
 
-  const store = useMemo<ConfigStore>(
-    () => ({ instances, register, unregister, patch }),
-    [instances, register, unregister, patch],
+  const actions = useMemo<ConfigActions>(
+    () => ({ register, unregister, patch }),
+    [register, unregister, patch],
   );
 
-  return <ConfigStoreContext.Provider value={store}>{children}</ConfigStoreContext.Provider>;
+  return (
+    <ActionsContext.Provider value={actions}>
+      <InstancesContext.Provider value={instances}>{children}</InstancesContext.Provider>
+    </ActionsContext.Provider>
+  );
 };
 
-const useConfigStore = (): ConfigStore => {
-  const store = useContext(ConfigStoreContext);
-  if (!store) throw new Error("WidgetConfigProvider is missing from the tree");
-  return store;
+const useActions = (): ConfigActions => {
+  const actions = useContext(ActionsContext);
+  if (!actions) throw new Error("WidgetConfigProvider is missing from the tree");
+  return actions;
 };
 
-export const useConfigInstances = () => useConfigStore().instances;
-export const usePatchConfig = () => useConfigStore().patch;
+export const useConfigInstances = () => useContext(InstancesContext);
+export const usePatchConfig = () => useActions().patch;
 
 // ---------- The hook widgets actually call ----------
 // Merge order (lowest -> highest priority):
@@ -133,7 +144,8 @@ export const useConfig = <S extends ConfigSchema>(schema: S): ConfigValues<S> =>
   const ambient = useContext(InstanceContext);
   if (!ambient) throw new Error("useConfig must be called inside a <WidgetHost>");
   const { instanceKey, displayName, initial } = ambient;
-  const store = useConfigStore();
+  const actions = useActions();
+  const instances = useContext(InstancesContext);
 
   // Freeze schema identity across re-renders (widgets declare it inline `as const`,
   // so the object identity would otherwise change every render).
@@ -146,10 +158,10 @@ export const useConfig = <S extends ConfigSchema>(schema: S): ConfigValues<S> =>
   );
 
   useEffect(() => {
-    store.register(instanceKey, schemaRef.current, seed, displayName ?? instanceKey);
-    return () => store.unregister(instanceKey);
-  }, [instanceKey, displayName, seed, store]);
+    actions.register(instanceKey, schemaRef.current, seed, displayName ?? instanceKey);
+    return () => actions.unregister(instanceKey);
+  }, [instanceKey, displayName, seed, actions]);
 
-  const current = store.instances[instanceKey]?.values;
+  const current = instances[instanceKey]?.values;
   return (current ?? seed) as ConfigValues<S>;
 };

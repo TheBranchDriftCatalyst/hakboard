@@ -8,6 +8,9 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+    // Radix subpackages each bring their own react copy under a workspace
+    // install. Force a single dispatcher or hooks throw "invalid hook call".
+    dedupe: ["react", "react-dom"],
   },
   server: {
     port: 3000,

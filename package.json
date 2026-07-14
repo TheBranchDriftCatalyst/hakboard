@@ -9,6 +9,8 @@
     "preview": "vite preview",
     "start:kiosk": "trap 'kill 0' EXIT; yarn preview & chromium --app=http://localhost:3000",
     "lint": "eslint .",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
     "create:preview": "node ./generatePreview.mjs"
   },
   "dependencies": {
@@ -41,6 +43,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.61.1",
     "@tailwindcss/postcss": "^4.3.2",
     "@types/debug": "^4.1.13",
     "@types/gulp": "^4.0.18",

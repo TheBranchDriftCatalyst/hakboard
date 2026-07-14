@@ -91,6 +91,33 @@ test.describe("dashboard baseline", () => {
     expect(persisted).toBe(42);
   });
 
+  test("widget config values persist across reloads", async ({ page }) => {
+    await clearAppState(page);
+    await page.reload();
+
+    await page.getByRole("button", { name: /open widget controls/i }).click();
+    await page.getByRole("button", { name: /^time$/i }).click();
+
+    const dateFormatInput = page.getByLabel(/date format/i);
+    await dateFormatInput.fill("yyyy");
+
+    // Wait for the debounce-free persistence write to land in localStorage.
+    await expect
+      .poll(async () =>
+        page.evaluate(() =>
+          JSON.parse(localStorage.getItem("widget-config") ?? "{}")
+        ),
+      )
+      .toMatchObject({ time: { dateFormat: "yyyy" } });
+
+    await page.reload();
+
+    // Sheet should re-hydrate the persisted value.
+    await page.getByRole("button", { name: /open widget controls/i }).click();
+    await page.getByRole("button", { name: /^time$/i }).click();
+    await expect(page.getByLabel(/date format/i)).toHaveValue("yyyy");
+  });
+
   test("?dashboard=test renders the alternate dashboard", async ({ page }) => {
     await clearAppState(page);
     await page.goto("/?dashboard=test");

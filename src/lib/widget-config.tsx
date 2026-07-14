@@ -84,19 +84,60 @@ interface ConfigActions {
 const InstancesContext = createContext<Record<string, InstanceRegistration>>({});
 const ActionsContext = createContext<ConfigActions | null>(null);
 
+// ---------- localStorage persistence ----------
+// User-edited values persist across reloads under a single key. We store just
+// the raw prop values per instance — schemas are re-attached when the widget
+// registers on mount.
+
+const STORAGE_KEY = "widget-config";
+
+type PersistedValues = Record<string, Record<string, unknown>>;
+
+const readPersistedValues = (): PersistedValues => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === "object") return parsed as PersistedValues;
+    return {};
+  } catch {
+    return {};
+  }
+};
+
+const writePersistedValues = (values: PersistedValues) => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(values));
+  } catch {
+    // Private-mode Safari, quota exceeded, etc. Silently ignore.
+  }
+};
+
 export const WidgetConfigProvider = ({ children }: PropsWithChildren) => {
   const [instances, setInstances] = useState<Record<string, InstanceRegistration>>({});
+  // Persisted values are held in a ref so register() can consult them without
+  // triggering re-renders. Hydrated once on mount.
+  const persistedRef = useRef<PersistedValues>(readPersistedValues());
 
   const register = useCallback<ConfigActions["register"]>((key, schema, values, displayName) => {
     setInstances((prev) => {
       const existing = prev[key];
-      // Preserve user-modified values if the instance is already registered.
-      const nextValues = existing ? existing.values : values;
+      const stored = persistedRef.current[key];
+      // Precedence: existing in-memory values > persisted values > seed.
+      // Persisted values are merged on top of the seed so newly-added schema
+      // props still pick up their defaults.
+      const nextValues = existing
+        ? existing.values
+        : stored
+        ? { ...values, ...stored }
+        : values;
       return { ...prev, [key]: { schema, values: nextValues, displayName } };
     });
   }, []);
 
   const unregister = useCallback<ConfigActions["unregister"]>((key) => {
+    // Intentionally does NOT clear persistedRef / localStorage — a widget that
+    // unmounts and later remounts should retain its user edits.
     setInstances((prev) => {
       if (!(key in prev)) return prev;
       const next = { ...prev };
@@ -109,7 +150,14 @@ export const WidgetConfigProvider = ({ children }: PropsWithChildren) => {
     setInstances((prev) => {
       const inst = prev[key];
       if (!inst) return prev;
-      return { ...prev, [key]: { ...inst, values: { ...inst.values, [prop]: value } } };
+      const nextValues = { ...inst.values, [prop]: value };
+      const nextPersisted = {
+        ...persistedRef.current,
+        [key]: { ...(persistedRef.current[key] ?? {}), [prop]: value },
+      };
+      persistedRef.current = nextPersisted;
+      writePersistedValues(nextPersisted);
+      return { ...prev, [key]: { ...inst, values: nextValues } };
     });
   }, []);
 

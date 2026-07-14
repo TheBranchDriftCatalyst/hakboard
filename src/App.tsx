@@ -1,42 +1,60 @@
-import Background from "@/widgets/background";
-import WeatherWidget from "@/widgets/weather";
-import TimeWidget from "@/widgets/time";
-import NewsWidget from "@/widgets/news";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Toaster } from "@/components/ui/toaster";
-import { Card } from "@/components/ui/card";
-import DraggableGridLayout from "@/components/Grid";
-import { useSearchParam } from "@/hooks/useSearchParam";
-import { SheetProvider } from "@/components/ui/sheet";
-import { WidgetPropsProvider } from "@/components/sheets/WidgetControlSheet";
+import { Settings } from "lucide-react";
+import { useState } from "react";
 
-const dashboards = {
+import { Toaster } from "@/components/ui/toaster";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import DraggableGridLayout, { type WidgetInstance } from "@/components/Grid";
+import { WidgetConfigProvider } from "@/lib/widget-config";
+import { WidgetControls } from "@/components/sheets/WidgetControlSheet";
+import { useSearchParam } from "@/hooks/useSearchParam";
+
+import Background from "@/widgets/background";
+import TimeWidget from "@/widgets/time";
+import WeatherWidget from "@/widgets/weather";
+import NewsWidget from "@/widgets/news";
+
+const dashboards: Record<string, WidgetInstance[]> = {
   default: [
-    <TimeWidget key="time_widget" />,
-    <WeatherWidget key="weather_widget" city="Denver" metricRotationInterval={30} />,
-    <Card key="test_widget">Pandas are pretty sweet</Card>,
-    <NewsWidget key="news_widget" />,
+    { key: "time", Component: TimeWidget, displayName: "Time" },
+    {
+      key: "weather",
+      Component: WeatherWidget,
+      displayName: "Weather",
+      initial: { city: "Denver", metricRotationInterval: 30 },
+    },
+    { key: "news", Component: NewsWidget, displayName: "News" },
   ],
-  test: [<Card key="test_widget">Pandas are pretty sweet</Card>],
+  test: [{ key: "time", Component: TimeWidget, displayName: "Time" }],
 };
 
 const queryClient = new QueryClient();
 
 export default function App() {
   const dashName = (useSearchParam("dashboard") ?? "default") as keyof typeof dashboards;
+  const [controlsOpen, setControlsOpen] = useState(false);
 
   return (
     <main>
       <QueryClientProvider client={queryClient}>
-        <WidgetPropsProvider>
-          <SheetProvider>
-            <DraggableGridLayout dashboard={dashName}>
-              {dashboards[dashName]}
-            </DraggableGridLayout>
-            <Background />
-            <Toaster />
-          </SheetProvider>
-        </WidgetPropsProvider>
+        <WidgetConfigProvider>
+          <DraggableGridLayout dashboard={dashName} instances={dashboards[dashName]} />
+          <Background />
+          <Sheet open={controlsOpen} onOpenChange={setControlsOpen}>
+            <SheetTrigger asChild>
+              <button
+                aria-label="Open widget controls"
+                className="fixed bottom-4 right-4 z-40 rounded-full bg-primary text-primary-foreground p-3 shadow-lg hover:opacity-90"
+              >
+                <Settings className="h-5 w-5" />
+              </button>
+            </SheetTrigger>
+            <SheetContent>
+              <WidgetControls />
+            </SheetContent>
+          </Sheet>
+          <Toaster />
+        </WidgetConfigProvider>
       </QueryClientProvider>
     </main>
   );

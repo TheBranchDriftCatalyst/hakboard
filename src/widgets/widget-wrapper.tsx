@@ -1,131 +1,66 @@
-"use client";
-
-import { Shell, Wrench } from "lucide-react";
-import React, {
-  ComponentType,
-  useState,
-  Suspense,
-  forwardRef,
-  useEffect,
-  useLayoutEffect,
-  createContext,
-  useContext,
-  ExoticComponent,
-  useCallback,
-} from "react";
-import { JSX } from "react/jsx-runtime";
-import IntrinsicAttributes = JSX.IntrinsicAttributes;
 import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { useToast } from "@/components/ui/use-toast";
-import { ToastAction } from "@/components/ui/toast";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { omit } from "lodash";
-import { Button } from "@/components/ui/button";
-// import { useControls } from "leva";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { WidgetPropsProvider, useControls } from "@/components/sheets/WidgetControlSheet";
+  createContext,
+  forwardRef,
+  Suspense,
+  useContext,
+  type ComponentType,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
+import { Shell } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { InstanceProvider } from "@/lib/widget-config";
 
-// Component is a HOC that wraps the widget components themselves.
-// It handles saving and reloading the props for each widget to local storage.
-// It provides an interface (cards) for editing the props of each widget. (currently levo)
+interface WidgetWidth {
+  width: number;
+  height: number;
+}
+const WidgetWidthContext = createContext<WidgetWidth | null>(null);
 
-interface WidgetGridProps extends React.HTMLAttributes<HTMLElement> {
-  style?: React.CSSProperties;
+export const useWidgetWidth = (): WidgetWidth => {
+  const ctx = useContext(WidgetWidthContext);
+  if (!ctx) throw new Error("useWidgetWidth must be used inside a widget");
+  return ctx;
+};
+
+const LoadingCardContent = () => (
+  <CardContent className="w-full h-full">
+    <Shell className="animate-spin" size={128} />
+    <div>Loading...</div>
+  </CardContent>
+);
+
+interface WidgetHostProps {
+  instanceKey: string;
+  displayName?: string;
+  initial?: Record<string, unknown>;
+  Component: ComponentType;
+  // Everything below is what react-grid-layout injects into each child.
+  style?: CSSProperties;
   className?: string;
-  onMouseDown?: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
-  onMouseUp?: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
-  onTouchEnd?: (event: React.TouchEvent<HTMLElement>) => void;
-  children?: React.ReactNode;
+  onMouseDown?: React.MouseEventHandler<HTMLElement>;
+  onMouseUp?: React.MouseEventHandler<HTMLElement>;
+  onTouchEnd?: React.TouchEventHandler<HTMLElement>;
+  children?: ReactNode;
 }
 
-const LoadingCardContent = () => {
-  return (
-    <CardContent className="w-full h-full">
-      <Shell className="animate-spin" size="128" />
-      <div>Loading dah stuff</div>
-    </CardContent>
-  );
-};
+export const WidgetHost = forwardRef<HTMLDivElement, WidgetHostProps>(
+  ({ instanceKey, displayName, initial, Component, children, ...gridProps }, ref) => {
+    const width = parseFloat(String(gridProps.style?.width ?? "0"));
+    const height = parseFloat(String(gridProps.style?.height ?? "0"));
 
-interface WidthProviderProps {
-  width: number;
-  height: number;
-  children: React.ReactNode;
-}
-
-export const WidgetWidthContext = createContext<{
-  width: number;
-  height: number;
-} | null>(null);
-
-export const WidgetWidthProvider = ({
-  width,
-  height,
-  children,
-}: WidthProviderProps) => {
-  return (
-    <WidgetWidthContext.Provider value={{ width, height }}>
-      {children}
-    </WidgetWidthContext.Provider>
-  );
-};
-
-// Use the WidgetWidthContext to consume the width and height values
-export const useWidgetWidth = () => {
-  const context = useContext(WidgetWidthContext);
-  if (!context) {
-    throw new Error(
-      "useWidgetWidth must be used within a Widget (WidgetWidthProvider)"
+    return (
+      <Card ref={ref} {...gridProps}>
+        <InstanceProvider instanceKey={instanceKey} displayName={displayName} initial={initial ?? {}}>
+          <WidgetWidthContext.Provider value={{ width, height }}>
+            <Suspense fallback={<LoadingCardContent />}>
+              <Component />
+            </Suspense>
+          </WidgetWidthContext.Provider>
+        </InstanceProvider>
+        {children}
+      </Card>
     );
-  }
-  return context;
-};
-
-const WidgetWrapper = <T extends object>(
-  WrappedWidget: ComponentType<T>,
-  defaultProps: T
-) => {
-  const WithEditButton = forwardRef<HTMLDivElement, T & WidgetGridProps>(
-    (props, ref) => {
-      // TODO: this is going to move to custom provider, for now its using leva
-      // const widgetProps = useState(defaultProps);
-      const [widgetProps] = useControls(
-        WrappedWidget.name,
-        // @ts-expect-error legacy loose types; will be replaced by typed registry in Phase 3
-        defaultProps
-      );
-
-      const width = parseFloat(props.style?.width as string);
-      const height = parseFloat(props.style?.height as string);
-
-      return (
-        <Card ref={ref} {...props}>
-          <WidgetPropsProvider>
-            <WidgetWidthProvider width={width} height={height}>
-              <Suspense fallback={<LoadingCardContent />}>
-                <WrappedWidget {...(widgetProps as T)} />
-              </Suspense>
-            </WidgetWidthProvider>
-            {props.children}
-          </WidgetPropsProvider>
-        </Card>
-      );
-    }
-  );
-
-  WithEditButton.displayName = `WithEditButton(${
-    WrappedWidget.displayName || WrappedWidget.name || "Component"
-  })`;
-
-  // It's not necessary to explicitly return defaultProps here as they are handled internally
-  return React.memo(WithEditButton);
-};
-
-export default WidgetWrapper;
+  },
+);
+WidgetHost.displayName = "WidgetHost";

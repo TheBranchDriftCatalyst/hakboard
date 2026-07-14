@@ -1,54 +1,46 @@
-"use client";
-import {DateTime} from "luxon";
-import {useEffect, useLayoutEffect, useState} from "react";
-import WidgetWrapper from "@/widgets/widget-wrapper";
+import { DateTime } from "luxon";
+import { useState } from "react";
 import ResponsiveTypography from "@/components/ui/typography";
+import { useInterval } from "@/hooks/useInterval";
+import { useConfig } from "@/lib/widget-config";
 
-const now = (dateFormat = 'DDDD') => {
-  const datetime = DateTime.local();
+const now = (dateFormat: string) => {
+  const dt = DateTime.local();
   return {
-    hour: datetime.toFormat('hh'),
-    minute: datetime.toFormat('mm'),
-    second: datetime.toFormat('ss'),
-    ampm: datetime.toFormat("a"),
-    date: datetime.toFormat(dateFormat)
-  }
+    hour: dt.toFormat("hh"),
+    minute: dt.toFormat("mm"),
+    second: dt.toFormat("ss"),
+    ampm: dt.toFormat("a"),
+    date: dt.toFormat(dateFormat),
+  };
 };
 
-interface TimeWidgetProps {
-  dateFormat?: string;
-}
+export const TimeWidget = () => {
+  const { dateFormat } = useConfig({
+    dateFormat: { type: "string", default: "DDDD", label: "Date format" },
+  } as const);
 
-const defaultProps: TimeWidgetProps = {
-  dateFormat: "DDDD"
-}
-
-const TimeWidget = ({dateFormat}: TimeWidgetProps = defaultProps) => {
-  const [{
-    date,
-    hour,
-    minute,
-    second,
-    ampm
-  }, setTime] = useState(now(dateFormat));
-
-  useLayoutEffect(() => {
-    const interval = setInterval(() => setTime(now(dateFormat)), 1000);
-    return () => clearInterval(interval);
-  }, [dateFormat]);
+  const [time, setTime] = useState(() => now(dateFormat));
+  useInterval(() => setTime(now(dateFormat)), 1000);
 
   return (
     <div className="h-full w-full text-primary">
-      <div className={"flex grow flow-row justify-center"}>
-        <ResponsiveTypography size="h2">{hour}:{minute}</ResponsiveTypography>
-        <span className={"flex flex-col justify-center"}>
-              <ResponsiveTypography size="xs">{second}</ResponsiveTypography>
-              <ResponsiveTypography size="xs">{ampm}</ResponsiveTypography>
-            </span>
+      <div className="flex grow flow-row justify-center">
+        <ResponsiveTypography size="h2">
+          {time.hour}:{time.minute}
+        </ResponsiveTypography>
+        <span className="flex flex-col justify-center">
+          <ResponsiveTypography size="xs">{time.second}</ResponsiveTypography>
+          <ResponsiveTypography size="xs">{time.ampm}</ResponsiveTypography>
+        </span>
       </div>
-      <ResponsiveTypography className={"flex text-s justify-center align-top"}>{date}</ResponsiveTypography>
+      <ResponsiveTypography className="flex text-s justify-center align-top">
+        {time.date}
+      </ResponsiveTypography>
     </div>
-  )
-}
+  );
+};
 
-export default WidgetWrapper(TimeWidget, defaultProps);
+TimeWidget.defaultLayout = { w: 14, h: 5 };
+
+export default TimeWidget;

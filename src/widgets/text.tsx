@@ -1,13 +1,12 @@
-"use client";
+import { useConfig } from "@/lib/widget-config";
 
-import WidgetWrapper from "@/widgets/widget-wrapper";
-
-interface TextComponentProps {
-  text: string;
-}
-
-export const TextComponent = ({ text }: TextComponentProps) => {
+export const TextWidget = () => {
+  const { text } = useConfig({
+    text: { type: "string", default: "Hello, World!", label: "Text" },
+  } as const);
   return <div>{text}</div>;
 };
 
-export default WidgetWrapper(TextComponent, { text: "Hello, World!" });
+TextWidget.defaultLayout = { w: 10, h: 3 };
+
+export default TextWidget;

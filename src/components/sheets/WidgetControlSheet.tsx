@@ -1,148 +1,128 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/components/ui/accordion';
-import { SheetHeader, SheetTitle, SheetClose } from '../ui/sheet';
-import { map } from 'lodash';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { ScrollArea } from '../ui/scroll-area';
+} from "@/components/ui/accordion";
+import { SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useConfigInstances, usePatchConfig, type ControlDef } from "@/lib/widget-config";
 
-const debug = require('debug')('widget:controls');
+const Control = ({
+  instanceKey,
+  propKey,
+  def,
+  value,
+  onChange,
+}: {
+  instanceKey: string;
+  propKey: string;
+  def: ControlDef;
+  value: unknown;
+  onChange: (v: unknown) => void;
+}) => {
+  const id = `${instanceKey}-${propKey}`;
+  const label = def.label ?? propKey;
 
-// TODO: Implement an explicit UseControls schema (allows defining control types)
-// TODO: Break this up into some seperate files
-// Fix typing
-
-type WidgetName = string;
-type PropName = string;
-type PropValue =  string | number | boolean;
-
-// 
-type PropSchema = {
-  type: 'string' | 'number' | 'boolean';
-} | PropValue;
-
-type StepperBarType = {
-  min: number;
-  max: number;
-  step: number;
+  switch (def.type) {
+    case "number":
+      return (
+        <div>
+          <Label htmlFor={id}>{label}</Label>
+          <Input
+            id={id}
+            type="number"
+            min={def.min}
+            max={def.max}
+            step={def.step ?? 1}
+            value={Number(value)}
+            onChange={(e) => onChange(e.target.value === "" ? 0 : Number(e.target.value))}
+          />
+        </div>
+      );
+    case "boolean":
+      return (
+        <div className="flex items-center gap-2">
+          <input
+            id={id}
+            type="checkbox"
+            checked={Boolean(value)}
+            onChange={(e) => onChange(e.target.checked)}
+          />
+          <Label htmlFor={id}>{label}</Label>
+        </div>
+      );
+    case "enum":
+      return (
+        <div>
+          <Label htmlFor={id}>{label}</Label>
+          <select
+            id={id}
+            className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
+            value={String(value)}
+            onChange={(e) => onChange(e.target.value)}
+          >
+            {def.options.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
+        </div>
+      );
+    case "string":
+    default:
+      return (
+        <div>
+          <Label htmlFor={id}>{label}</Label>
+          <Input
+            id={id}
+            type="text"
+            value={String(value ?? "")}
+            onChange={(e) => onChange(e.target.value)}
+          />
+        </div>
+      );
+  }
 };
 
-type TextInputType = {
-
-}
-
-type WidgetPropertiesType = Record<PropName, PropSchema>;
-type WidgetPropsStore = Record<WidgetName, WidgetPropertiesType>;
-type UpdateWidgetPropsStore = (controlName: keyof WidgetPropsStore, props: WidgetPropsStore[keyof WidgetPropsStore]) => void
-
-// useControls('test', defaultProps, {}: PropsSchema)
-
-interface WidgetPropsContextInterface {
-  widgetProps: WidgetPropsStore
-  updateWidgetProps: UpdateWidgetPropsStore
-}
-
-const WidgetPropsContext = React.createContext<WidgetPropsContextInterface>({
-  widgetProps: {},
-  updateWidgetProps: () => {},
-});
-
-export const WidgetPropsProvider = ({ children }: React.PropsWithChildren<typeof WidgetPropsContext>) => {
-  const [widgetProps, setWidgetProps] = useState<WidgetPropsStore>({});
-
-  const updateWidgetProps = useCallback<UpdateWidgetPropsStore>((controlName, props) => {
-    debug('updateWidgetProps', controlName, props);
-    setWidgetProps((prevProps) => ({
-      ...prevProps,
-      [controlName]: props,
-    }));
-  }, []);
+export const WidgetControls = () => {
+  const instances = useConfigInstances();
+  const patch = usePatchConfig();
+  const entries = Object.entries(instances);
 
   return (
-    <WidgetPropsContext.Provider value={{ widgetProps, updateWidgetProps }}>
-      {children}
-    </WidgetPropsContext.Provider>
-  );
-};
-
-
-export const useControls = (controlName: keyof WidgetPropsStore, defaultProps: WidgetPropsStore[WidgetName]) => {
-  const { widgetProps, updateWidgetProps } = useContext(WidgetPropsContext);
-  const [props, setProps] = useState(defaultProps);
-
-  // Update local state if widgetProps for this controlName changes
-  useEffect(() => {
-    if (widgetProps[controlName]) {
-      setProps(widgetProps[controlName]);
-    }
-  }, [widgetProps, controlName]);
-
-  useEffect(() => {
-    updateWidgetProps(controlName, props);
-  }, [props, controlName, updateWidgetProps]);
-
-  return [props, setProps];
-};
-
-
-export const useMasterControls = () => {
-  const { widgetProps, updateWidgetProps } = useContext(WidgetPropsContext);
-  const [allProps, setAllProps] = useState<WidgetPropsStore>(widgetProps);
-
-  useEffect(() => {
-    setAllProps(widgetProps);
-  }, [widgetProps]);
-
-  const setProp = useCallback((widgetName: WidgetName, propName: PropName, newValue: PropValue) => {
-    const updatedProps = { ...allProps[widgetName], [propName]: newValue };
-    updateWidgetProps(widgetName, updatedProps);
-  }, [allProps, updateWidgetProps]);
-
-  return [allProps, setProp];
-};
-
-const WidgetControls = () => {
-  console.log(useContext(WidgetPropsContext))
-  const [allProps, setProp] = useMasterControls();
-
-  debug('allProps', allProps);
-
-  return (
-    <div className="p-4">
+    <div className="p-4 h-full">
       <SheetHeader>
         <SheetTitle>Widget Controls</SheetTitle>
       </SheetHeader>
-    <ScrollArea>
-      <Accordion type="single" collapsible>
-      {
-        map(allProps, (props: WidgetPropsStore[WidgetName], widgetName: keyof WidgetPropsStore) => {
-          return (
-            <AccordionItem key={widgetName} value={widgetName}>
-              <AccordionTrigger>{widgetName}</AccordionTrigger>
-              {
-                map(props, (value, propName) => (
-                  // TODO: add boolean and input types here at some point
-                  <AccordionContent key={widgetName + '-' + propName}>
-                    <Label htmlFor={propName}>{propName}</Label>
-                    <Input
-                      type="text"
-                      id={String(propName)}
-                      value={String(value)}
-                      onChange={(e) => setProp(widgetName, propName, e.target.value)}
-                    />
-                  </AccordionContent>
-                ))
-              }
+      <ScrollArea className="h-full pt-4">
+        {entries.length === 0 && (
+          <div className="text-sm text-muted-foreground py-4">
+            No widgets registered yet — render something to see its controls.
+          </div>
+        )}
+        <Accordion type="single" collapsible>
+          {entries.map(([instanceKey, reg]) => (
+            <AccordionItem key={instanceKey} value={instanceKey}>
+              <AccordionTrigger>{reg.displayName}</AccordionTrigger>
+              <AccordionContent className="space-y-3">
+                {Object.entries(reg.schema).map(([propKey, def]) => (
+                  <Control
+                    key={propKey}
+                    instanceKey={instanceKey}
+                    propKey={propKey}
+                    def={def}
+                    value={reg.values[propKey]}
+                    onChange={(v) => patch(instanceKey, propKey, v)}
+                  />
+                ))}
+              </AccordionContent>
             </AccordionItem>
-          )
-        })
-      }
-      </Accordion>
+          ))}
+        </Accordion>
       </ScrollArea>
     </div>
   );

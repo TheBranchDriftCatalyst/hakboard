@@ -1,55 +1,33 @@
-"use client";
-import React, { useState, useEffect, use } from 'react';
-import WidgetWrapper from './widget-wrapper';
+import { useState } from "react";
+import { useInterval } from "@/hooks/useInterval";
 
-// Define a type for the component props
-interface BackgroundWidgetProps {
-  // backgrounds: string[]; // Array of strings for background image URLs
+interface BackgroundProps {
   opacity?: number;
-  interval?: number;
+  intervalSeconds?: number;
 }
 
-const defaultProps: BackgroundWidgetProps = {
-  opacity: 0.5,
-  interval: 30,
-}
+const backgrounds = [
+  "backgrounds/bg0.jpg",
+  "backgrounds/bg1.jpg",
+  "backgrounds/bg2.jpg",
+  "backgrounds/bg3.jpg",
+];
 
-const BackgroundWidget: React.FC<BackgroundWidgetProps> = ({interval, opacity} : BackgroundWidgetProps = defaultProps) => {
+const Background = ({ opacity = 0.5, intervalSeconds = 30 }: BackgroundProps) => {
+  const [index, setIndex] = useState(0);
 
-  const [currentBackgroundIndex, setCurrentBackgroundIndex] = useState<number>(0);
-
-  const backgrounds = [
-    // TODO: get this dynamically from a folder or from dropbox in the future
-    "backgrounds/bg0.jpg",
-    "backgrounds/bg1.jpg",
-    "backgrounds/bg2.jpg",
-    "backgrounds/bg3.jpg",
-  ]
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentBackgroundIndex((prevIndex) => (prevIndex + 1) % backgrounds.length);
-    }, interval || 30 * 1000);
-
-    return () => clearInterval(timer);
-    return () => clearInterval(timer);
-  }, [backgrounds.length, interval]);
+  useInterval(() => setIndex((prev) => (prev + 1) % backgrounds.length), intervalSeconds * 1000);
 
   return (
     <div
       className="fixed top-0 left-0 h-full w-full z-[-10] bg-center bg-no-repeat bg-cover"
       style={{
-        // TODO: this is going to be something like.... 
-        // getBackgroundFromPRovider(DropboxProvider, "backgrounds") -> urls[]
-        backgroundImage: `url(${backgrounds[currentBackgroundIndex]})`,
-        transition: 'background-image 1s ease-in-out',
-        opacity: opacity, // Add some transparency to the background
+        backgroundImage: `url(${backgrounds[index]})`,
+        transition: "background-image 1s ease-in-out",
+        opacity,
       }}
-    >
-    </div>
+    />
   );
 };
 
-export default BackgroundWidget;
-
-// export default WidgetWrapper(BackgroundWidget, { opacity: 0.5, interval: 30 });
+export default Background;

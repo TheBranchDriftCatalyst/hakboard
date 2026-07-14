@@ -20,11 +20,17 @@ export default defineConfig({
 
   projects: [
     {
-      // Firefox works reliably on this machine — Chrome/WebKit both have
-      // launch-permission issues here. Swap to chromium in CI.
+      // Firefox works reliably on this dev machine — keep it first as the
+      // known-good baseline for local runs.
       name: "firefox",
       use: { ...devices["Desktop Firefox"] },
     },
+    // Chromium is only enabled in CI because this developer machine still
+    // segfaults chrome-headless-shell (SEGV_ACCERR at launch) even after
+    // recent permission tweaks. Linux CI runners launch it fine.
+    ...(process.env.CI
+      ? [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }]
+      : []),
   ],
 
   webServer: {

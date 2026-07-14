@@ -3,6 +3,9 @@ import {
   forwardRef,
   Suspense,
   useContext,
+  useLayoutEffect,
+  useRef,
+  useState,
   type ComponentType,
   type CSSProperties,
   type ReactNode,
@@ -44,15 +47,46 @@ interface WidgetHostProps {
   children?: ReactNode;
 }
 
+// Measure the card's actual rendered size via ResizeObserver instead of
+// parsing `style.width` as a number. react-grid-layout hands us "300px"
+// which parseFloats fine, but the isolation route passes "100%" (parses
+// to 100 — wrong scale). Measuring the DOM works in both cases and is
+// reactive to container resizes.
+const useMeasuredSize = () => {
+  const [size, setSize] = useState<WidgetWidth>({ width: 0, height: 0 });
+  const elRef = useRef<HTMLDivElement | null>(null);
+  useLayoutEffect(() => {
+    const el = elRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    setSize({ width: rect.width, height: rect.height });
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (!entry) return;
+      const { width, height } = entry.contentRect;
+      setSize({ width, height });
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+  return [elRef, size] as const;
+};
+
 export const WidgetHost = forwardRef<HTMLDivElement, WidgetHostProps>(
   ({ instanceKey, displayName, initial, Component, children, ...gridProps }, ref) => {
-    const width = parseFloat(String(gridProps.style?.width ?? "0"));
-    const height = parseFloat(String(gridProps.style?.height ?? "0"));
+    const [measuredRef, size] = useMeasuredSize();
+
+    // Compose the caller's forwarded ref with our measurement ref.
+    const setRefs = (node: HTMLDivElement | null) => {
+      measuredRef.current = node;
+      if (typeof ref === "function") ref(node);
+      else if (ref) ref.current = node;
+    };
 
     return (
-      <Card ref={ref} {...gridProps}>
+      <Card ref={setRefs} {...gridProps}>
         <InstanceProvider instanceKey={instanceKey} displayName={displayName} initial={initial ?? {}}>
-          <WidgetWidthContext.Provider value={{ width, height }}>
+          <WidgetWidthContext.Provider value={size}>
             <Suspense fallback={<LoadingCardContent />}>
               <Component />
             </Suspense>

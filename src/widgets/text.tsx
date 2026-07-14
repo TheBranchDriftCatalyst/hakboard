@@ -2,7 +2,7 @@ import { useConfig } from "@/lib/widget-config";
 
 export const TextWidget = () => {
   const { text } = useConfig({
-    text: { type: "string", default: "Hello, World!", label: "Text" },
+    text: { type: "string", default: "Hello, World!", label: "Content" },
   } as const);
   return <div>{text}</div>;
 };

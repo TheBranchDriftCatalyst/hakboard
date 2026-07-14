@@ -44,17 +44,16 @@ test.describe("dashboard baseline", () => {
     await page.reload();
 
     await page.getByRole("button", { name: /open widget controls/i }).click();
-
-    // Expand the Time accordion so the controls become visible.
     await page.getByRole("button", { name: /^time$/i }).click();
 
-    const input = page.getByLabel(/date format/i);
-    await expect(input).toBeVisible();
+    const select = page.getByLabel(/date format/i);
+    await expect(select).toBeVisible();
 
-    // Type a format that renders a short year — easy to assert against.
-    await input.fill("yyyy");
-    // Time widget re-renders every second; give it a beat.
-    await expect(page.locator("body")).toContainText(/\b20\d{2}\b/, { timeout: 3000 });
+    await select.selectOption("SHORT");
+    // SHORT preset renders numeric M/D/YYYY e.g. "7/14/2026".
+    await expect(page.locator("body")).toContainText(/\d{1,2}\/\d{1,2}\/\d{4}/, {
+      timeout: 3000,
+    });
   });
 
   test("dashboard layout persists in localStorage across reloads", async ({ page }) => {
@@ -98,8 +97,7 @@ test.describe("dashboard baseline", () => {
     await page.getByRole("button", { name: /open widget controls/i }).click();
     await page.getByRole("button", { name: /^time$/i }).click();
 
-    const dateFormatInput = page.getByLabel(/date format/i);
-    await dateFormatInput.fill("yyyy");
+    await page.getByLabel(/date format/i).selectOption("SHORT");
 
     // Wait for the debounce-free persistence write to land in localStorage.
     await expect
@@ -108,14 +106,14 @@ test.describe("dashboard baseline", () => {
           JSON.parse(localStorage.getItem("widget-config") ?? "{}")
         ),
       )
-      .toMatchObject({ time: { dateFormat: "yyyy" } });
+      .toMatchObject({ time: { dateFormat: "SHORT" } });
 
     await page.reload();
 
     // Sheet should re-hydrate the persisted value.
     await page.getByRole("button", { name: /open widget controls/i }).click();
     await page.getByRole("button", { name: /^time$/i }).click();
-    await expect(page.getByLabel(/date format/i)).toHaveValue("yyyy");
+    await expect(page.getByLabel(/date format/i)).toHaveValue("SHORT");
   });
 
   test("?dashboard=test renders the alternate dashboard", async ({ page }) => {

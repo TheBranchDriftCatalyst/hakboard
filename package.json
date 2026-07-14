@@ -10,7 +10,9 @@
     "start:kiosk": "trap 'kill 0' EXIT; yarn preview & chromium --app=http://localhost:3000",
     "lint": "eslint .",
     "test:e2e": "playwright test",
+    "test:e2e:fast": "playwright test --grep-invert @docs",
     "test:e2e:ui": "playwright test --ui",
+    "docs:widgets": "playwright test --grep @docs",
     "create:preview": "node ./generatePreview.mjs"
   },
   "dependencies": {

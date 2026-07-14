@@ -22,7 +22,7 @@ const WIDGETS: WidgetCase[] = [
   {
     key: "time",
     displayName: "Time",
-    controls: ["Date format"],
+    controls: ["24-hour", "Show seconds", "Show date", "Date format"],
     contentPattern: /\d{2}:\d{2}/,
   },
   {

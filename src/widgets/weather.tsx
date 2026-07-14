@@ -1,6 +1,5 @@
 import axios from "axios";
 import Debug from "debug";
-import { DateTime } from "luxon";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
@@ -9,7 +8,6 @@ import { WeatherClock } from "@/components/weather-clock/WeatherClock";
 import type {
   OpenWeatherDataMetric,
   OpenWeatherDTOInterface,
-  WeatherDatumIFace,
 } from "@/components/weather-clock/OpenWeatherDTO";
 import { lookupCity } from "@/config/cities";
 import { useInterval } from "@/hooks/useInterval";
@@ -48,12 +46,7 @@ export const WeatherWidget = () => {
     queryFn: async () => {
       const coords = lookupCity(city);
       if (!coords) throw new Error(`Unknown city: ${city}`);
-      const data = await fetchWeather(coords.lat, coords.long);
-      data.hourly = data.hourly.map((curr: WeatherDatumIFace) => ({
-        ...curr,
-        dt: DateTime.fromSeconds(curr.dt as number) as unknown as number,
-      }));
-      return data;
+      return fetchWeather(coords.lat, coords.long);
     },
     refetchInterval: 10 * 60 * 1000,
   });

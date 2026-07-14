@@ -27,7 +27,7 @@ import React, { useMemo, type JSX } from "react";
 import {
   OpenWeatherIconMapping,
   WeatherConditionIFace,
-  WeatherDatumIFace,
+  HourlyWeather,
 } from "./OpenWeatherDTO";
 import Debug from "debug";
 import {
@@ -55,7 +55,7 @@ const unknownWeatherCondition:
 };
 
 interface WeatherClockNodeInterface {
-  weatherData: WeatherDatumIFace;
+  weatherData: HourlyWeather;
   style?: ClockNodeStyleProps;
 }
 
@@ -64,9 +64,7 @@ export interface WeatherDatumConfig {
     formatter: (value: any) => string;
 }
 
-export const WeatherMetric: Partial<Record<keyof WeatherDatumIFace, JSX.Element | WeatherDatumConfig>> = {
-    sunrise: <Sunrise />,
-    sunset: <Sunset />,
+export const WeatherMetric: Partial<Record<keyof HourlyWeather, JSX.Element | WeatherDatumConfig>> = {
     temp: <Thermometer />,
     // feels_like: 'Feels Like',
     pressure: <Gauge />,
@@ -83,7 +81,7 @@ export const WeatherMetric: Partial<Record<keyof WeatherDatumIFace, JSX.Element 
 }
 
 //  both getters and formatters in one, no need to separate this yet
-export const WeatherMetricFormatters: Partial<Record<keyof WeatherDatumIFace, (weatherData: WeatherDatumIFace, currentMetric: keyof WeatherDatumIFace) => string>> = {
+export const WeatherMetricFormatters: Partial<Record<keyof HourlyWeather, (weatherData: HourlyWeather, currentMetric: keyof HourlyWeather) => string>> = {
     temp: (weatherData, currentMetric) => `${weatherData[currentMetric]}&deg;F`,
     uvi: (weatherData, currentMetric) => `${weatherData[currentMetric]}`,
     wind_speed: (weatherData, currentMetric) => `${weatherData[currentMetric]} mph`,
@@ -91,13 +89,11 @@ export const WeatherMetricFormatters: Partial<Record<keyof WeatherDatumIFace, (w
     pressure: (weatherData, currentMetric) => `${weatherData[currentMetric]} hPa`,
     humidity: (weatherData, currentMetric) => `${weatherData[currentMetric]}%`,
     clouds: (weatherData, currentMetric) => `${weatherData[currentMetric]}%`,
-    sunrise: (weatherData, currentMetric) => DateTime.fromSeconds(weatherData['sunrise']).toLocaleString(DateTime.TIME_SIMPLE),
-    sunset: (weatherData, currentMetric) => DateTime.fromSeconds(weatherData['sunset']).toLocaleString(DateTime.TIME_SIMPLE),
 }
 
 interface WeatherDatumProps {
-    weatherData: WeatherDatumIFace;
-    currentMetric: keyof WeatherDatumIFace;
+    weatherData: HourlyWeather;
+    currentMetric: keyof HourlyWeather;
 }
 
 export const WeatherDatum = ({weatherData, currentMetric}: WeatherDatumProps) => {
@@ -133,9 +129,12 @@ export const WeatherClockNode = (props: any) => {
     });
   }
 
+  const dt =
+    weatherData?.dt != null ? DateTime.fromSeconds(weatherData.dt) : null;
+
   debug("WeatherClockNode", {
     ...props,
-    dt: weatherData?.dt.toLocaleString(DateTime.DATETIME_FULL_WITH_SECONDS),
+    dt: dt?.toLocaleString(DateTime.DATETIME_FULL_WITH_SECONDS),
   });
 
   return (
@@ -175,10 +174,7 @@ export const WeatherClockNode = (props: any) => {
         <HoverCardContent style={{ ...counterRotationStyles }}>
           <div>
             <span>
-              {weatherData?.dt &&
-                weatherData.dt.toLocaleString(
-                  DateTime.DATETIME_FULL_WITH_SECONDS
-                )}
+              {dt && dt.toLocaleString(DateTime.DATETIME_FULL_WITH_SECONDS)}
             </span>
             <span>{JSON.stringify(weatherData, null, 2)}</span>
           </div>

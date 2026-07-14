@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, Fragment } from "react";
+import { DateTime } from "luxon";
 import {
   OpenWeatherDTOInterface,
   OpenWeatherDataMetric,
@@ -41,8 +42,11 @@ export const WeatherClock = ({
   const hourlyForecastNodes = openWeatherData?.hourly
     ?.slice()
     .slice(0, 12) // Take the first 12 elements representing the next 12 hours of forecasts
-    // @ts-ignore DateTime type inference issue
-    .sort((a, b) => (a.dt.hour % 12) - (b.dt.hour % 12)) // Sort by hour, such that index 0 is 12 o-clock not current hour
+    .sort(
+      (a, b) =>
+        (DateTime.fromSeconds(a.dt).hour % 12) -
+        (DateTime.fromSeconds(b.dt).hour % 12)
+    ) // Sort by hour, such that index 0 is 12 o-clock not current hour
     .map((hourlyWeatherData, index) => {
       const rotationFactor = -((90 * Math.PI) / 180); // rotate counterclockwise 90 degrees, otherwise we start at 3 o-clock, 0=24|12
       const angle = (index / 12) * 2 * Math.PI + rotationFactor; // Angle in radians

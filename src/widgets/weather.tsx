@@ -43,7 +43,7 @@ const fetchWeather = async (
   lat: number | undefined
 ): Promise<OpenWeatherDTOInterface> => {
   const baseUrl: string = "https://api.openweathermap.org/data/3.0/onecall";
-  const apiKey = process.env.NEXT_PUBLIC_OPEN_WEATHER_API_KEY;
+  const apiKey = import.meta.env.VITE_OPEN_WEATHER_API_KEY;
 
   try {
     const response = await axios.get(baseUrl, {
@@ -86,9 +86,9 @@ const WeatherWidget = ({
       const { lat, long } = await asyncGeoCoding(city);
       const weatherData = await fetchWeather(long, lat)
       // convert to a lookup table
-      weatherData.hourly = weatherData.hourly.map((curr: WeatherDatumIFace, index) => {
-        const dt = DateTime.fromSeconds(curr?.dt)
-        curr.dt = dt
+      weatherData.hourly = weatherData.hourly.map((curr: WeatherDatumIFace) => {
+        const dt = DateTime.fromSeconds(curr?.dt as number)
+        curr.dt = dt as unknown as number
         return curr
       })
 

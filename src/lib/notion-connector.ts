@@ -19,7 +19,7 @@ const enum DatabaseName {
 
 // Initializing a client
 export const notion = new Client({
-  auth: process.env.NEXT_PUBLIC_NOTION_TOKEN,
+  auth: import.meta.env.VITE_NOTION_TOKEN,
   logLevel: "error"
 })
 

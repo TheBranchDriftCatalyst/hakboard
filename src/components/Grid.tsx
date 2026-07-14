@@ -2,8 +2,8 @@
 
 import Debug from "debug";
 import { ReactNode, useEffect, useMemo, useState } from "react";
-import { Layout, Responsive, WidthProvider } from "react-grid-layout";
-import { Responsive as ResponsiveType } from "react-grid-layout";
+import { Layout, Responsive, WidthProvider } from "react-grid-layout-19";
+import { Responsive as ResponsiveType } from "react-grid-layout-19";
 
 import { defaultGridSizes as weatherWidgetSize } from "@/widgets/weather";
 

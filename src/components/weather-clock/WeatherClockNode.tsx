@@ -23,7 +23,7 @@ import {
   CloudDrizzle,
   LucideIcon as LucidIcon,
 } from "lucide-react";
-import React, { useMemo } from "react";
+import React, { useMemo, type JSX } from "react";
 import {
   OpenWeatherIconMapping,
   WeatherConditionIFace,
@@ -101,12 +101,13 @@ interface WeatherDatumProps {
 }
 
 export const WeatherDatum = ({weatherData, currentMetric}: WeatherDatumProps) => {
-
+    // @ts-ignore Weather data type complexity
     const formatter = WeatherMetricFormatters[currentMetric] || ((weatherData: WeatherConditionIFace) => weatherData[currentMetric]);
 
     return (
         <div className="flex flex-col items-center">
             <ResponsiveTypography tag="span" size="2xs" className="text-secondary">
+              {/* @ts-ignore Weather data type complexity */}
               {formatter(weatherData, currentMetric)}
             </ResponsiveTypography>
         </div>

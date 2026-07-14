@@ -3,14 +3,8 @@ import {
   OpenWeatherDTOInterface,
   OpenWeatherDataMetric,
 } from "./OpenWeatherDTO";
-import { SizeMe } from "react-sizeme";
-import { Cloud } from "lucide-react";
 import Debug from "debug";
 import WeatherClockNode from "./WeatherClockNode";
-import { DateTime } from "luxon";
-import { chain } from "lodash";
-import { useSheet } from "../ui/sheet";
-import WidgetControls from "../sheets/WidgetControlSheet";
 
 const debug = Debug("weather:clock");
 
@@ -47,6 +41,7 @@ export const WeatherClock = ({
   const hourlyForecastNodes = openWeatherData?.hourly
     ?.slice()
     .slice(0, 12) // Take the first 12 elements representing the next 12 hours of forecasts
+    // @ts-ignore DateTime type inference issue
     .sort((a, b) => (a.dt.hour % 12) - (b.dt.hour % 12)) // Sort by hour, such that index 0 is 12 o-clock not current hour
     .map((hourlyWeatherData, index) => {
       const rotationFactor = -((90 * Math.PI) / 180); // rotate counterclockwise 90 degrees, otherwise we start at 3 o-clock, 0=24|12
@@ -66,7 +61,7 @@ export const WeatherClock = ({
             rotation={rotationProps}
             currentMetric={currentMetric}
             weatherData={hourlyWeatherData}
-            isSunset={openWeatherData?.current?.sunsettermter}
+            isSunset={openWeatherData?.current?.sunset}
             isSunrise={openWeatherData?.current?.sunrise}
             style={{
               position: "absolute",

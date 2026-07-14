@@ -1,5 +1,4 @@
 import { OpenWeatherConditionCodes } from './OpenWeatherDTO';
-import Image from 'next/image';
 
 interface WeatherConditionProps {
     time: string;
@@ -8,15 +7,13 @@ interface WeatherConditionProps {
     className?: string;
 }
 
-export const WeatherCondition = ({time, code, icon, className}: WeatherConditionProps) => {
-    // Use OpenWeatherMap's built-in icon API
-    // Icon codes are provided by the API (e.g., "01d", "02n", etc.)
+export const WeatherCondition = ({code, icon, className}: WeatherConditionProps) => {
     const iconUrl = icon
         ? `https://openweathermap.org/img/wn/${icon}@2x.png`
-        : `https://openweathermap.org/img/wn/01d@2x.png`; // fallback
+        : `https://openweathermap.org/img/wn/01d@2x.png`;
 
     return (
-        <Image
+        <img
             src={iconUrl}
             alt={`Weather condition ${code}`}
             width={48}

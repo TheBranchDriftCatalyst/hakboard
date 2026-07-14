@@ -31,7 +31,7 @@ import { Button } from "@/components/ui/button";
 // import { useControls } from "leva";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { WidgetPropsProvider, useControls } from "@/components/sheets/WidgetControlSheet";
-// import { WidthProviderProps } from "react-grid-layout";
+// import { WidthProviderProps } from "react-grid-layout-19";
 
 // Component is a HOC that wraps the widget components themselves.
 // It handles saving and reloading the props for each widget to local storage.
@@ -97,8 +97,9 @@ const WidgetWrapper = <T extends object>(
     (props, ref) => {
       // TODO: this is going to move to custom provider, for now its using leva
       // const widgetProps = useState(defaultProps);
-      const [widgetProps, setWidgetProps] = useControls(
+      const [widgetProps] = useControls(
         WrappedWidget.name,
+        // @ts-expect-error legacy loose types; will be replaced by typed registry in Phase 3
         defaultProps
       );
 

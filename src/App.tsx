@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Settings } from "lucide-react";
-import { useState } from "react";
+import { lazy, useState } from "react";
 
 import { Toaster } from "@/components/ui/toaster";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -10,22 +10,41 @@ import { WidgetControls } from "@/components/sheets/WidgetControlSheet";
 import { useSearchParam } from "@/hooks/useSearchParam";
 
 import Background from "@/widgets/background";
-import TimeWidget from "@/widgets/time";
-import WeatherWidget from "@/widgets/weather";
-import NewsWidget from "@/widgets/news";
+
+const TimeWidget = lazy(() => import("@/widgets/time"));
+const WeatherWidget = lazy(() => import("@/widgets/weather"));
+const NewsWidget = lazy(() => import("@/widgets/news"));
 
 const dashboards: Record<string, WidgetInstance[]> = {
   default: [
-    { key: "time", Component: TimeWidget, displayName: "Time" },
+    {
+      key: "time",
+      Component: TimeWidget,
+      displayName: "Time",
+      layoutOverrides: { w: 14, h: 5 },
+    },
     {
       key: "weather",
       Component: WeatherWidget,
       displayName: "Weather",
       initial: { city: "Denver", metricRotationInterval: 30 },
+      layoutOverrides: { w: 20, h: 20 },
     },
-    { key: "news", Component: NewsWidget, displayName: "News" },
+    {
+      key: "news",
+      Component: NewsWidget,
+      displayName: "News",
+      layoutOverrides: { w: 20, h: 5 },
+    },
   ],
-  test: [{ key: "time", Component: TimeWidget, displayName: "Time" }],
+  test: [
+    {
+      key: "time",
+      Component: TimeWidget,
+      displayName: "Time",
+      layoutOverrides: { w: 14, h: 5 },
+    },
+  ],
 };
 
 const queryClient = new QueryClient();

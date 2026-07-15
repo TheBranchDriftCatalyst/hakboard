@@ -70,10 +70,12 @@ test.describe("weather clock design", () => {
       return { cx: r.left + r.width / 2, cy: r.top + r.height / 2 };
     });
 
-    // The "now" node is the one with .drop-shadow class applied on its icon.
+    // The "now" node has a bg-primary/10 chip + ring-1 ring around its
+    // contents — matched via the `animate-pulse-glow` utility we only apply
+    // to the current hour.
     const highlighted = page
       .getByTestId("weather-clock-node")
-      .filter({ has: page.locator("img.drop-shadow-\\[0_0_6px_currentColor\\]") });
+      .filter({ has: page.locator(".animate-pulse-glow") });
     await expect(highlighted).toHaveCount(1);
 
     const pos = await highlighted.evaluate((el) => {

@@ -29,13 +29,13 @@ export const TimeWidget = () => {
   const [now, setNow] = useState(() => DateTime.local());
   useInterval(() => setNow(DateTime.local()), 1000);
 
-  // Fluid pixel sizing keyed off the widget's actual container size.
-  // Falls back to a small floor so isolation/first-render doesn't collapse to 0.
+  // Fluid sizing keyed off container width, min-clamped so isolation
+  // renders don't collapse at first paint.
   const { width } = useWidgetWidth();
-  const w = Math.max(width, 200);
-  const timePx = Math.max(28, Math.min(w * 0.18, 240));
-  const subPx = Math.max(12, Math.min(w * 0.055, 56));
-  const datePx = Math.max(10, Math.min(w * 0.033, 22));
+  const w = Math.max(width, 220);
+  const timePx = Math.max(48, Math.min(w * 0.22, 260));
+  const subPx = Math.max(12, Math.min(w * 0.05, 44));
+  const datePx = Math.max(10, Math.min(w * 0.028, 18));
 
   const hh = now.toFormat(hour24 ? "HH" : "hh");
   const mm = now.toFormat("mm");
@@ -45,31 +45,63 @@ export const TimeWidget = () => {
   const presetKey = (dateFormat in DATE_FORMATS ? dateFormat : "FULL") as DateFormatKey;
   const dateStr = now.toLocaleString(DATE_FORMATS[presetKey]);
 
+  const minuteProgress = (now.second / 60) * 100;
+
   return (
     <div
-      className="h-full w-full flex flex-col items-center justify-center text-primary select-none"
+      className="h-full w-full flex flex-col items-center justify-center gap-5 select-none px-6"
       data-testid="time-widget"
     >
-      <div className="flex items-baseline gap-3 tabular-nums font-light tracking-tight leading-none">
-        <span style={{ fontSize: timePx, lineHeight: 1 }} data-testid="time-clock">
+      {/* Clock — mono, tabular, dimmed colon separates HH from MM */}
+      <div className="flex items-baseline gap-3">
+        <span
+          className="font-mono tabular-nums font-extralight text-primary leading-none tracking-tight"
+          style={{ fontSize: timePx }}
+          data-testid="time-clock"
+        >
           {hh}
-          <span className="opacity-60">:</span>
+          <span className="text-primary/25">:</span>
           {mm}
         </span>
         {(showSeconds || !hour24) && (
-          <span
-            className="flex flex-col items-start text-secondary tabular-nums leading-none"
-            style={{ fontSize: subPx, gap: subPx * 0.15 }}
+          <div
+            className="flex flex-col items-start justify-center leading-none"
+            style={{ gap: subPx * 0.2 }}
           >
-            {showSeconds && <span data-testid="time-seconds">{ss}</span>}
-            {!hour24 && <span data-testid="time-ampm">{ampm}</span>}
-          </span>
+            {showSeconds && (
+              <span
+                className="font-mono tabular-nums text-secondary/90 font-light"
+                style={{ fontSize: subPx }}
+                data-testid="time-seconds"
+              >
+                {ss}
+              </span>
+            )}
+            {!hour24 && (
+              <span
+                className="font-mono uppercase tracking-[0.3em] text-muted-foreground"
+                style={{ fontSize: subPx * 0.55 }}
+                data-testid="time-ampm"
+              >
+                {ampm}
+              </span>
+            )}
+          </div>
         )}
       </div>
+
+      {/* Second-hand hairline — progress bar of the current minute */}
+      <div className="w-full max-w-md h-px bg-divider relative overflow-hidden">
+        <div
+          className="absolute inset-y-0 left-0 bg-primary/60 transition-[width] duration-1000 ease-linear"
+          style={{ width: `${minuteProgress}%` }}
+        />
+      </div>
+
       {showDate && (
         <div
-          className="text-muted-foreground uppercase tracking-widest"
-          style={{ fontSize: datePx, paddingTop: datePx * 0.8 }}
+          className="font-mono uppercase text-muted-foreground text-center"
+          style={{ fontSize: datePx, letterSpacing: "0.3em" }}
           data-testid="time-date"
         >
           {dateStr}

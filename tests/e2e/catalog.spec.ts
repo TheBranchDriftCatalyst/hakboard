@@ -19,7 +19,7 @@ test.describe("catalog page", () => {
     await page.goto("/catalog");
 
     await expect(page.getByTestId("catalog-page")).toBeVisible();
-    await expect(page.getByRole("heading", { name: /widget catalog/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /^catalog$/i })).toBeVisible();
 
     for (const key of WIDGETS) {
       await expect(page.getByTestId(`catalog-cell-${key}`)).toBeVisible();

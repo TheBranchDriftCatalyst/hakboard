@@ -1,7 +1,91 @@
 @import "tailwindcss";
 @config "../tailwind.config.ts";
 
+/* ─────────────────────────────────────────────────────────────
+   Chronometer palette. Dark neutral base, restrained accents.
+   Structure comes from hairlines and typography — not color.
+   ───────────────────────────────────────────────────────────── */
+@layer base {
+  :root {
+    --background: #0a0a0f;
+    --surface-1: #12121a;
+    --surface-2: #1a1a24;
+    --foreground: #e4e4e7;
+    --muted: #27272a;
+    --muted-foreground: #71717a;
 
+    --primary: #22d3ee;              /* cyan-400 */
+    --primary-foreground: #0a0a0f;
+    --secondary: #a78bfa;            /* violet-400 (softer than the old #aa00ff) */
+    --secondary-foreground: #fafafa;
+    --accent: #f472b6;               /* pink-400, used sparingly */
+    --accent-foreground: #0a0a0f;
+    --destructive: #ef4444;
+    --destructive-foreground: #fafafa;
+
+    --border: rgba(255, 255, 255, 0.06);
+    --divider: rgba(255, 255, 255, 0.08);
+    --input: rgba(255, 255, 255, 0.1);
+    --ring: rgba(34, 211, 238, 0.5);
+
+    --card: var(--surface-1);
+    --card-foreground: var(--foreground);
+    --popover: var(--surface-2);
+    --popover-foreground: var(--foreground);
+  }
+
+  * {
+    border-color: var(--border);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+    font-feature-settings: "ss01", "ss02", "cv08";
+    /* subtle 40px graph-paper grid — barely there, feels like an instrument panel */
+    background-image:
+      linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  /* Custom scrollbars — thin, mono, chrome-y */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.15);
+  }
+}
+
+/* Utility: tabular monospace numerals */
+.font-mono,
+.tabular-nums {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-feature-settings: "tnum", "zero", "cv07";
+  font-variant-numeric: tabular-nums;
+}
+
+/* Utility: uppercase small-caps label style used across the app */
+.eyebrow {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  font-size: 10px;
+  color: var(--muted-foreground);
+  font-weight: 400;
+}
+
+/* React grid layout — resize handle styling */
 .react-resizable {
   position: relative;
 }
@@ -15,102 +99,14 @@
   background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2IDYiIHN0eWxlPSJiYWNrZ3JvdW5kLWNvbG9yOiNmZmZmZmYwMCIgeD0iMHB4IiB5PSIwcHgiIHdpZHRoPSI2cHgiIGhlaWdodD0iNnB4Ij48ZyBvcGFjaXR5PSIwLjMwMiI+PHBhdGggZD0iTSA2IDYgTCAwIDYgTCAwIDQuMiBMIDQgNC4yIEwgNC4yIDQuMiBMIDQuMiAwIEwgNiAwIEwgNiA2IEwgNiA2IFoiIGZpbGw9IiMwMDAwMDAiLz48L2c+PC9zdmc+');
   background-position: bottom right;
   padding: 0 3px 3px 0;
+  opacity: 0.4;
+  transition: opacity 0.15s;
 }
-
-.react-resizable-handle-sw {
-  bottom: 0;
-  left: 0;
-  cursor: sw-resize;
-  transform: rotate(90deg);
+.react-resizable-handle:hover {
+  opacity: 1;
 }
 .react-resizable-handle-se {
   bottom: 0;
   right: 0;
   cursor: se-resize;
-}
-.react-resizable-handle-nw {
-  top: 0;
-  left: 0;
-  cursor: nw-resize;
-  transform: rotate(180deg);
-}
-.react-resizable-handle-ne {
-  top: 0;
-  right: 0;
-  cursor: ne-resize;
-  transform: rotate(270deg);
-}
-.react-resizable-handle-w,
-.react-resizable-handle-e {
-  top: 50%;
-  margin-top: -10px;
-  cursor: ew-resize;
-}
-.react-resizable-handle-w {
-  left: 0;
-  transform: rotate(135deg);
-}
-.react-resizable-handle-e {
-  right: 0;
-  transform: rotate(315deg);
-}
-.react-resizable-handle-n,
-.react-resizable-handle-s {
-  left: 50%;
-  margin-left: -10px;
-  cursor: ns-resize;
-}
-.react-resizable-handle-n {
-  top: 0;
-  transform: rotate(225deg);
-}
-.react-resizable-handle-s {
-  bottom: 0;
-  transform: rotate(45deg);
-}
-
-body {
-  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
-}
-
-@layer base {
-  :root {
-    --background: #09090BFF;
-    --foreground: #FAFAFAFF;
-
-    --card: #19141a;
-    --card-foreground: #FAFAFAFF;
-
-    --popover: #09090BFF;
-    --popover-foreground: #FAFAFAFF;
-
-    --primary: #00fcd6;
-    --primary-foreground: #18181BFF;
-
-    --secondary: #aa00ff;
-    --secondary-foreground: #FAFAFAFF;
-
-    --muted: #27272AFF;
-    --muted-foreground: #A1A1AAFF;
-
-    --accent: #27272AFF;
-    --accent-foreground: #FAFAFAFF;
-
-    --destructive: #EE1111FF;
-    --destructive-foreground: #FAFAFAFF;
-
-    --border: #27272AFF;
-    --input: #27272AFF;
-    --ring: #D4D4D8FF;
-  }
-}
-
-@layer base {
-  * {
-    border-color: var(--border);
-  }
-  body {
-    background-color: var(--background);
-    color: var(--foreground);
-  }
 }

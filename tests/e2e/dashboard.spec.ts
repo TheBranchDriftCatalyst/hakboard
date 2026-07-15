@@ -116,6 +116,41 @@ test.describe("dashboard baseline", () => {
     await expect(page.getByLabel(/date format/i)).toHaveValue("SHORT");
   });
 
+  test("dragging the SE resize handle grows the grid item", async ({ page }) => {
+    await clearAppState(page);
+    await page.reload();
+
+    // Wait for react-grid-layout to render at least one item.
+    const item = page.locator(".react-grid-item").first();
+    await expect(item).toBeVisible();
+
+    const before = await item.evaluate((el) => {
+      const r = el.getBoundingClientRect();
+      return { w: r.width, h: r.height };
+    });
+
+    const handle = page.locator(".react-resizable-handle-se").first();
+    const box = await handle.boundingBox();
+    if (!box) throw new Error("SE resize handle has no bounding box");
+
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(box.x + 150, box.y + 150, { steps: 20 });
+    await page.mouse.up();
+    // Give react-grid-layout a beat to commit the resize + fire onLayoutChange.
+    await page.waitForTimeout(300);
+
+    const after = await item.evaluate((el) => {
+      const r = el.getBoundingClientRect();
+      return { w: r.width, h: r.height };
+    });
+
+    // Assert a meaningful growth — exact pixels depend on grid cell size,
+    // just prove it changed by a lot.
+    expect(after.w).toBeGreaterThan(before.w + 40);
+    expect(after.h).toBeGreaterThan(before.h + 40);
+  });
+
   test("?dashboard=test renders the alternate dashboard", async ({ page }) => {
     await clearAppState(page);
     await page.goto("/?dashboard=test");

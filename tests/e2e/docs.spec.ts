@@ -74,6 +74,17 @@ test.describe.serial("@docs widget gallery", () => {
     }
   }
 
+  test(`@docs catalog overview`, async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/catalog", { waitUntil: "networkidle" });
+    await page.waitForTimeout(1500);
+    await page.screenshot({
+      path: path.join(OUT_DIR, "catalog.png"),
+      fullPage: true,
+      animations: "disabled",
+    });
+  });
+
   test.afterAll(async () => {
     const lines: string[] = [
       "# Widget Gallery",
@@ -87,6 +98,12 @@ test.describe.serial("@docs widget gallery", () => {
         (w) =>
           `| \`${w.key}\` | ${w.controls.map((c) => `\`${c}\``).join(", ")} |`,
       ),
+      "",
+      "## Catalog Overview",
+      "",
+      "All widgets on the `/catalog` page:",
+      "",
+      "![Catalog overview](./widgets/catalog.png)",
       "",
     ];
 

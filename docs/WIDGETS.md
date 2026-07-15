@@ -10,6 +10,12 @@
 | `news` | `Article limit` |
 | `text` | `Content` |
 
+## Catalog Overview
+
+All widgets on the `/catalog` page:
+
+![Catalog overview](./widgets/catalog.png)
+
 ## Time
 
 Fluid pixel sizing scales with container width.

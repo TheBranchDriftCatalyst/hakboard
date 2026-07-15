@@ -9,7 +9,8 @@ import { WidgetHost } from "@/widgets/widget-wrapper";
 import { WidgetConfigProvider } from "@/lib/widget-config";
 import { WidgetControls } from "@/components/sheets/WidgetControlSheet";
 import { useSearchParam } from "@/hooks/useSearchParam";
-import { instanceFromSpec, widgetCatalog } from "@/widgets/catalog";
+import { usePathname } from "@/hooks/usePathname";
+import { instanceFromSpec, widgetCatalog, type WidgetSpec } from "@/widgets/catalog";
 
 import Background from "@/widgets/background";
 
@@ -43,10 +44,7 @@ const ControlsSheet = () => {
   );
 };
 
-// Isolation route: ?widget=<key> renders one widget filling the viewport with
-// full app providers (query, config, sheet). Used for per-widget visual
-// iteration and parameterized e2e tests. If the key is unknown, falls through
-// to a clear error state instead of the dashboard.
+// Isolation route: ?widget=<key> renders one widget filling the viewport.
 const IsolatedWidget = ({ widgetKey }: { widgetKey: string }) => {
   const spec = widgetCatalog[widgetKey];
   if (!spec) {
@@ -72,7 +70,47 @@ const IsolatedWidget = ({ widgetKey }: { widgetKey: string }) => {
   );
 };
 
+// Catalog route: /catalog renders every widget in the catalog side-by-side in
+// a responsive grid. Each cell is a real WidgetHost — controls in the sheet
+// affect these instances just like anywhere else.
+const CatalogPage = () => (
+  <div className="min-h-screen p-6 text-foreground" data-testid="catalog-page">
+    <header className="mb-6">
+      <h1 className="text-2xl font-light tracking-wide text-primary">Widget Catalog</h1>
+      <p className="text-sm text-muted-foreground">
+        {Object.keys(widgetCatalog).length} widgets · click the gear to tune any of them
+      </p>
+    </header>
+    <div
+      className="grid gap-4"
+      style={{ gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))" }}
+    >
+      {Object.values(widgetCatalog).map((spec: WidgetSpec) => (
+        <section
+          key={spec.key}
+          data-testid={`catalog-cell-${spec.key}`}
+          className="space-y-2"
+        >
+          <div className="text-xs uppercase tracking-widest text-muted-foreground">
+            {spec.displayName}
+          </div>
+          <div className="h-[320px]">
+            <WidgetHost
+              instanceKey={spec.key}
+              displayName={spec.displayName}
+              initial={spec.sampleInitial}
+              Component={spec.Component}
+              style={{ width: "100%", height: "100%" }}
+            />
+          </div>
+        </section>
+      ))}
+    </div>
+  </div>
+);
+
 export default function App() {
+  const pathname = usePathname();
   const isolatedWidget = useSearchParam("widget");
   const dashName = (useSearchParam("dashboard") ?? "default") as keyof typeof dashboards;
 
@@ -80,7 +118,9 @@ export default function App() {
     <main>
       <QueryClientProvider client={queryClient}>
         <WidgetConfigProvider>
-          {isolatedWidget ? (
+          {pathname === "/catalog" ? (
+            <CatalogPage />
+          ) : isolatedWidget ? (
             <IsolatedWidget widgetKey={isolatedWidget} />
           ) : (
             <>

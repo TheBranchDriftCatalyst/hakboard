@@ -103,16 +103,20 @@ export const WeatherClock = ({
           })}
         </svg>
 
-        {/* Hourly nodes around the ring */}
-        {hourly.map((h, i) => {
-          // -90° rotation so index 0 sits at 12 o'clock; nodes advance clockwise.
-          const angle = (i / 12) * 2 * Math.PI - Math.PI / 2;
+        {/* Hourly nodes positioned by their real hour-of-day (like an analog
+            clock) — node for 3pm sits at the 3 o'clock spot, node for 6am at 6,
+            etc. The "now" highlight naturally lands wherever the current hour
+            falls. Our 12 forecasts cover 12 distinct positions (no wrap). */}
+        {hourly.map((h) => {
+          const hourOfDay = DateTime.fromSeconds(h.dt).hour;
+          const clockSlot = hourOfDay % 12; // 0..11, where 0 = 12 o'clock
+          // -90° rotation so slot 0 sits at the top of the face.
+          const angle = (clockSlot / 12) * 2 * Math.PI - Math.PI / 2;
           const x = radius + Math.cos(angle) * nodeRingRadius;
           const y = radius + Math.sin(angle) * nodeRingRadius;
-          const hourOfDay = DateTime.fromSeconds(h.dt).hour;
           return (
             <WeatherClockNode
-              key={i}
+              key={hourOfDay}
               weatherData={h}
               currentMetric={currentMetric as keyof typeof h}
               x={x}

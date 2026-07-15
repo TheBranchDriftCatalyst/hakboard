@@ -56,6 +56,43 @@ test.describe("weather clock design", () => {
     expect(isDescendant).toBe(false);
   });
 
+  test("current-hour node lands at the correct clock-face position", async ({ page }) => {
+    await goto(page);
+    await page.waitForTimeout(1500);
+
+    // Slot 0 = 12 o'clock (top), slot 3 = 3 o'clock (right), etc.
+    // Expected slot for "now" = new Date().getHours() % 12.
+    const expectedSlot = new Date().getHours() % 12;
+
+    const face = page.getByTestId("weather-clock");
+    const rect = await face.evaluate((el) => {
+      const r = el.getBoundingClientRect();
+      return { cx: r.left + r.width / 2, cy: r.top + r.height / 2 };
+    });
+
+    // The "now" node is the one with .drop-shadow class applied on its icon.
+    const highlighted = page
+      .getByTestId("weather-clock-node")
+      .filter({ has: page.locator("img.drop-shadow-\\[0_0_6px_currentColor\\]") });
+    await expect(highlighted).toHaveCount(1);
+
+    const pos = await highlighted.evaluate((el) => {
+      const r = el.getBoundingClientRect();
+      return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+    });
+
+    // Convert node position → clock slot using atan2 around the face center.
+    // atan2 returns radians from +X axis; adjust so 12 o'clock (top, +90° up)
+    // maps to slot 0.
+    const rad = Math.atan2(pos.y - rect.cy, pos.x - rect.cx);
+    const rotated = rad + Math.PI / 2;
+    const twoPi = Math.PI * 2;
+    const normalized = (rotated + twoPi) % twoPi;
+    const measuredSlot = Math.round((normalized / twoPi) * 12) % 12;
+
+    expect(measuredSlot).toBe(expectedSlot);
+  });
+
   test("metric label rotates when metricRotationInterval elapses", async ({ page }) => {
     await goto(page);
     await page.getByRole("button", { name: /open widget controls/i }).click();

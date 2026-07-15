@@ -82,7 +82,7 @@ export const WeatherMetric: Partial<Record<keyof HourlyWeather, JSX.Element | We
 
 //  both getters and formatters in one, no need to separate this yet
 export const WeatherMetricFormatters: Partial<Record<keyof HourlyWeather, (weatherData: HourlyWeather, currentMetric: keyof HourlyWeather) => string>> = {
-    temp: (weatherData, currentMetric) => `${weatherData[currentMetric]}&deg;F`,
+    temp: (weatherData, currentMetric) => `${weatherData[currentMetric]}°F`,
     uvi: (weatherData, currentMetric) => `${weatherData[currentMetric]}`,
     wind_speed: (weatherData, currentMetric) => `${weatherData[currentMetric]} mph`,
     wind_gust: (weatherData, currentMetric) => `${weatherData[currentMetric]} mph`,

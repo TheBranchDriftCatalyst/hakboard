@@ -15,6 +15,19 @@ import { useConfig } from "@/lib/widget-config";
 
 const debug = Debug("weather:widget");
 
+// Metrics cycled in the center of the clock face. Restricted to values that
+// exist on the OpenWeather Current payload and have a meaningful formatted
+// representation (see WeatherClockNode.formatMetric).
+const METRIC_ROTATION: OpenWeatherDataMetric[] = [
+  "temp",
+  "feels_like",
+  "humidity",
+  "wind_speed",
+  "pressure",
+  "clouds",
+  "uvi",
+];
+
 const fetchWeather = async (lat: number, long: number): Promise<OpenWeatherDTOInterface> => {
   const apiKey = import.meta.env.VITE_OPEN_WEATHER_API_KEY;
   const response = await axios.get("https://api.openweathermap.org/data/3.0/onecall", {
@@ -54,8 +67,11 @@ export const WeatherWidget = () => {
   const [currentMetric, setCurrentMetric] = useState<OpenWeatherDataMetric>("temp");
 
   useInterval(() => {
-    debug("rotating metric");
-    setCurrentMetric("temp");
+    setCurrentMetric((prev) => {
+      const next = METRIC_ROTATION[(METRIC_ROTATION.indexOf(prev) + 1) % METRIC_ROTATION.length];
+      debug("rotating metric", prev, "->", next);
+      return next;
+    });
   }, metricRotationInterval * 1000);
 
   const size = useWidgetWidth();

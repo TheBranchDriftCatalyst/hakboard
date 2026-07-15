@@ -1,27 +1,32 @@
-import { OpenWeatherConditionCodes } from './OpenWeatherDTO';
+import type { OpenWeatherConditionCodes } from "./OpenWeatherDTO";
 
 interface WeatherConditionProps {
-    time: string;
-    code: OpenWeatherConditionCodes;
-    icon?: string;
-    className?: string;
+  code: OpenWeatherConditionCodes;
+  icon?: string;
+  size?: number;
+  className?: string;
+  time?: string;
 }
 
-export const WeatherCondition = ({code, icon, className}: WeatherConditionProps) => {
-    const iconUrl = icon
-        ? `https://openweathermap.org/img/wn/${icon}@2x.png`
-        : `https://openweathermap.org/img/wn/01d@2x.png`;
+export const WeatherCondition = ({
+  code,
+  icon,
+  size = 48,
+  className,
+}: WeatherConditionProps) => {
+  const iconCode = icon ?? "01d";
+  const iconUrl = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
 
-    return (
-        <img
-            src={iconUrl}
-            alt={`Weather condition ${code}`}
-            width={48}
-            height={48}
-            className={className}
-        />
-    );
-}
+  return (
+    <img
+      src={iconUrl}
+      alt={`Weather condition ${code}`}
+      width={size}
+      height={size}
+      style={{ width: size, height: size }}
+      className={className}
+    />
+  );
+};
 
 export default WeatherCondition;
-    

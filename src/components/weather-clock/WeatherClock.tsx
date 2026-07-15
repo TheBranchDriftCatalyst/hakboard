@@ -1,123 +1,166 @@
-import React, { useState, useEffect, useMemo, Fragment } from "react";
 import { DateTime } from "luxon";
-import {
+import type {
   OpenWeatherDTOInterface,
   OpenWeatherDataMetric,
 } from "./OpenWeatherDTO";
-import Debug from "debug";
-import WeatherClockNode from "./WeatherClockNode";
+import WeatherClockNode, { formatMetric } from "./WeatherClockNode";
+import WeatherCondition from "./WeatherCondition";
 
-const debug = Debug("weather:clock");
-
-export interface SizerProps {
+export interface WeatherClockProps {
+  openWeatherData?: OpenWeatherDTOInterface;
+  currentMetric: OpenWeatherDataMetric;
   size: { width: number; height: number };
 }
 
-export interface WeatherClockProps extends SizerProps {
-  openWeatherData?: OpenWeatherDTOInterface;
-  currentMetric?: OpenWeatherDataMetric;
-}
-
-// if (!Array.prototype.tap) {
-//   Array.prototype.tap = function(callback) {
-//     callback(this); // Call the callback function with the array as its argument
-//     return this; // Return the array to allow further chaining
-//   };
-// }
-
-
-// This is one the few times I actually need to use trig!
-// The way this clock is constructed is that we place HourNodes around the circumference of a circle.
-// Each node represents the weather at that hour. Each node need to be rotated around a correct angle then, the inner content is rotated
-// in the opposite direction to keep it upright.
+const METRIC_LABEL: Record<OpenWeatherDataMetric, string> = {
+  temp: "Temp",
+  feels_like: "Feels like",
+  humidity: "Humidity",
+  pressure: "Pressure",
+  dew_point: "Dew point",
+  uvi: "UV index",
+  clouds: "Clouds",
+  visibility: "Visibility",
+  wind_speed: "Wind",
+  wind_deg: "Wind dir",
+  wind_gust: "Gust",
+  rain: "Rain",
+  snow: "Snow",
+};
 
 export const WeatherClock = ({
   openWeatherData,
   currentMetric,
   size: { width, height },
 }: WeatherClockProps) => {
-  const clockSize = Math.max(Math.min(width, height) * .75, 10);
+  // Reserve outer padding so nodes don't clip; use whichever axis is smaller.
+  const clockSize = Math.max(160, Math.min(width, height) - 24);
   const radius = clockSize / 2;
+  const nodeRingRadius = radius - Math.max(28, clockSize * 0.09);
 
-  const hourlyForecastNodes = openWeatherData?.hourly
-    ?.slice()
-    .slice(0, 12) // Take the first 12 elements representing the next 12 hours of forecasts
-    .sort(
-      (a, b) =>
-        (DateTime.fromSeconds(a.dt).hour % 12) -
-        (DateTime.fromSeconds(b.dt).hour % 12)
-    ) // Sort by hour, such that index 0 is 12 o-clock not current hour
-    .map((hourlyWeatherData, index) => {
-      const rotationFactor = -((90 * Math.PI) / 180); // rotate counterclockwise 90 degrees, otherwise we start at 3 o-clock, 0=24|12
-      const angle = (index / 12) * 2 * Math.PI + rotationFactor; // Angle in radians
-      const x = radius * Math.cos(angle) + radius;
-      const y = radius * Math.sin(angle) + radius;
-      const rotationProps = { 
-        x, y, angle, rotationFactor,
-        counterRotationStyles: {
-          transform: `rotate(${-angle}rad)`,
-        },
-      };
-      
-      return (
-        <Fragment key={index}>
-          <WeatherClockNode
-            rotation={rotationProps}
-            currentMetric={currentMetric}
-            weatherData={hourlyWeatherData}
-            isSunset={openWeatherData?.current?.sunset}
-            isSunrise={openWeatherData?.current?.sunrise}
-            style={{
-              position: "absolute",
-              left: `${x}px`,
-              top: `${y}px`,
-              transform: `translate(-50%, -50%) rotate(${angle}rad)`,
-            }}
-            hour12={index == 0 ? 12 : index} // get rid of this shortly
-          />
-        </Fragment>
-      );
-    });
+  const iconSize = Math.max(18, Math.min(48, clockSize * 0.08));
+  const valuePx = Math.max(10, Math.min(20, clockSize * 0.035));
+  const centerBigPx = Math.max(28, Math.min(120, clockSize * 0.18));
+  const centerLabelPx = Math.max(10, Math.min(18, clockSize * 0.03));
+  const centerIconPx = Math.max(28, Math.min(72, clockSize * 0.12));
 
+  const nowHour24 = new Date().getHours();
 
-  const currentConditions = openWeatherData?.current?.weather[0]?.id;
-  const primaryDescription = openWeatherData?.current?.weather[0]?.description;
+  // Take the next 12 hours (starting at current hour). We DON'T sort — the API
+  // gives us chronological hours, and index 0 = "now" reads naturally.
+  const hourly = openWeatherData?.hourly?.slice(0, 12) ?? [];
+
+  const currentDescription = openWeatherData?.current?.weather?.[0]?.description ?? "—";
+  const currentIcon = openWeatherData?.current?.weather?.[0]?.icon;
+  const currentValue = openWeatherData?.current
+    ? formatMetric(currentMetric, openWeatherData.current as unknown as Record<string, unknown>)
+    : "—";
 
   return (
-    <div
-      className="flex justify-center items-center w-full h-full"
-      style={{
-        position: "relative",
-      }}
-    >
+    <div className="flex justify-center items-center w-full h-full">
       <div
-        style={{
-          position: "absolute",
-          width: `${clockSize}px`,
-          height: `${clockSize}px`,
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-        }}
+        className="relative"
+        style={{ width: clockSize, height: clockSize }}
+        data-testid="weather-clock"
       >
-        {hourlyForecastNodes}
-        <div
-          id="currentConditionNode"
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-          }}
+        {/* Ring */}
+        <svg
+          className="absolute inset-0 pointer-events-none"
+          viewBox={`0 0 ${clockSize} ${clockSize}`}
+          aria-hidden
         >
-          <div>
-            <div className="text-primary">
-              {currentMetric}  
-            </div>
-            <div className="">{primaryDescription}</div>
+          <circle
+            cx={radius}
+            cy={radius}
+            r={nodeRingRadius}
+            fill="none"
+            stroke="var(--secondary)"
+            strokeWidth="1"
+            opacity="0.35"
+          />
+          {/* 12 tick marks aligned with hour positions — longer on 12/3/6/9. */}
+          {Array.from({ length: 12 }).map((_, i) => {
+            const angle = (i / 12) * 2 * Math.PI - Math.PI / 2;
+            const isCardinal = i % 3 === 0;
+            const inset = isCardinal ? 10 : 5;
+            const outset = isCardinal ? 4 : 2;
+            const x1 = radius + Math.cos(angle) * (nodeRingRadius - inset);
+            const y1 = radius + Math.sin(angle) * (nodeRingRadius - inset);
+            const x2 = radius + Math.cos(angle) * (nodeRingRadius + outset);
+            const y2 = radius + Math.sin(angle) * (nodeRingRadius + outset);
+            return (
+              <line
+                key={i}
+                x1={x1}
+                y1={y1}
+                x2={x2}
+                y2={y2}
+                stroke={isCardinal ? "var(--primary)" : "var(--muted-foreground)"}
+                strokeWidth={isCardinal ? 2 : 1}
+                opacity={isCardinal ? 0.7 : 0.4}
+              />
+            );
+          })}
+        </svg>
+
+        {/* Hourly nodes around the ring */}
+        {hourly.map((h, i) => {
+          // -90° rotation so index 0 sits at 12 o'clock; nodes advance clockwise.
+          const angle = (i / 12) * 2 * Math.PI - Math.PI / 2;
+          const x = radius + Math.cos(angle) * nodeRingRadius;
+          const y = radius + Math.sin(angle) * nodeRingRadius;
+          const hourOfDay = DateTime.fromSeconds(h.dt).hour;
+          return (
+            <WeatherClockNode
+              key={i}
+              weatherData={h}
+              currentMetric={currentMetric as keyof typeof h}
+              x={x}
+              y={y}
+              isNow={hourOfDay === nowHour24}
+              iconSize={iconSize}
+              valuePx={valuePx}
+            />
+          );
+        })}
+
+        {/* Center: current conditions + rotating metric */}
+        <div
+          className="absolute inset-0 flex flex-col items-center justify-center gap-1 pointer-events-none"
+          data-testid="weather-clock-center"
+        >
+          {currentIcon && (
+            <WeatherCondition
+              code={openWeatherData?.current?.weather?.[0]?.id ?? 800}
+              icon={currentIcon}
+              size={centerIconPx}
+              className="opacity-95"
+            />
+          )}
+          <div
+            className="text-primary tabular-nums font-light leading-none"
+            style={{ fontSize: centerBigPx }}
+            data-testid="weather-clock-value"
+          >
+            {currentValue}
+          </div>
+          <div
+            className="text-muted-foreground uppercase tracking-widest"
+            style={{ fontSize: centerLabelPx }}
+            data-testid="weather-clock-metric-label"
+          >
+            {METRIC_LABEL[currentMetric] ?? currentMetric}
+          </div>
+          <div
+            className="text-secondary capitalize"
+            style={{ fontSize: centerLabelPx }}
+          >
+            {currentDescription}
           </div>
         </div>
+
       </div>
     </div>
   );
 };
+

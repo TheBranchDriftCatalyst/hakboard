@@ -29,13 +29,20 @@ export const TimeWidget = () => {
   const [now, setNow] = useState(() => DateTime.local());
   useInterval(() => setNow(DateTime.local()), 1000);
 
-  // Fluid sizing keyed off container width, min-clamped so isolation
-  // renders don't collapse at first paint.
+  // Sizing based on the widget's own measured width. Font size scales
+  // proportionally, with a hard floor so it stays readable at any container
+  // size the grid may squish it to.
   const { width } = useWidgetWidth();
-  const w = Math.max(width, 220);
-  const timePx = Math.max(48, Math.min(w * 0.22, 260));
-  const subPx = Math.max(12, Math.min(w * 0.05, 44));
-  const datePx = Math.max(10, Math.min(w * 0.028, 18));
+  const w = Math.max(width, 200);
+
+  // Adaptive layout: at very narrow widths, drop the seconds/AMPM stack and
+  // the second-hand line to prevent overflow.
+  const compact = w < 260;
+  const tiny = w < 200;
+
+  const timePx = Math.max(28, Math.min(w * 0.22, 240));
+  const subPx = Math.max(11, Math.min(w * 0.05, 40));
+  const datePx = Math.max(9, Math.min(w * 0.026, 16));
 
   const hh = now.toFormat(hour24 ? "HH" : "hh");
   const mm = now.toFormat("mm");
@@ -49,13 +56,12 @@ export const TimeWidget = () => {
 
   return (
     <div
-      className="h-full w-full flex flex-col items-center justify-center gap-5 select-none px-6"
+      className="h-full w-full flex flex-col items-center justify-center gap-3 select-none overflow-hidden px-3"
       data-testid="time-widget"
     >
-      {/* Clock — mono, tabular, dimmed colon separates HH from MM */}
-      <div className="flex items-baseline gap-3">
+      <div className="flex items-baseline gap-2 min-w-0 max-w-full">
         <span
-          className="font-mono tabular-nums font-extralight text-primary leading-none tracking-tight"
+          className="font-mono tabular-nums font-extralight text-primary leading-none tracking-tight whitespace-nowrap"
           style={{ fontSize: timePx }}
           data-testid="time-clock"
         >
@@ -63,7 +69,7 @@ export const TimeWidget = () => {
           <span className="text-primary/25">:</span>
           {mm}
         </span>
-        {(showSeconds || !hour24) && (
+        {!compact && (showSeconds || !hour24) && (
           <div
             className="flex flex-col items-start justify-center leading-none"
             style={{ gap: subPx * 0.2 }}
@@ -90,17 +96,18 @@ export const TimeWidget = () => {
         )}
       </div>
 
-      {/* Second-hand hairline — progress bar of the current minute */}
-      <div className="w-full max-w-md h-px bg-divider relative overflow-hidden">
-        <div
-          className="absolute inset-y-0 left-0 bg-primary/60 transition-[width] duration-1000 ease-linear"
-          style={{ width: `${minuteProgress}%` }}
-        />
-      </div>
+      {!tiny && (
+        <div className="w-full max-w-md h-px bg-divider relative overflow-hidden">
+          <div
+            className="absolute inset-y-0 left-0 bg-primary/60 transition-[width] duration-1000 ease-linear"
+            style={{ width: `${minuteProgress}%` }}
+          />
+        </div>
+      )}
 
-      {showDate && (
+      {showDate && !tiny && (
         <div
-          className="font-mono uppercase text-muted-foreground text-center"
+          className="font-mono uppercase text-muted-foreground text-center whitespace-nowrap overflow-hidden text-ellipsis max-w-full"
           style={{ fontSize: datePx, letterSpacing: "0.3em" }}
           data-testid="time-date"
         >
@@ -111,6 +118,6 @@ export const TimeWidget = () => {
   );
 };
 
-TimeWidget.defaultLayout = { w: 14, h: 5 };
+TimeWidget.defaultLayout = { w: 26, h: 14 };
 
 export default TimeWidget;

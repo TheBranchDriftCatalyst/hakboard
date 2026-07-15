@@ -8,6 +8,10 @@ import {
 import { DateTime } from "luxon";
 import type { HourlyWeather } from "./OpenWeatherDTO";
 import WeatherCondition from "./WeatherCondition";
+import { DegreeMark } from "./WeatherClock";
+
+const IS_TEMP = (metric: string) =>
+  metric === "temp" || metric === "feels_like" || metric === "dew_point";
 
 // Formats a metric value for display around the clock face. Accepts any
 // object with numeric metric fields — used for both HourlyWeather and
@@ -58,7 +62,9 @@ export const WeatherClockNode = ({
 }: WeatherClockNodeProps) => {
   const primary = weatherData?.weather?.[0];
   const dt = weatherData?.dt != null ? DateTime.fromSeconds(weatherData.dt) : null;
-  const value = formatMetric(currentMetric as string, weatherData as unknown as Record<string, unknown>);
+  const rawValue = formatMetric(currentMetric as string, weatherData as unknown as Record<string, unknown>);
+  const isTemp = IS_TEMP(currentMetric as string);
+  const value = isTemp ? rawValue.replace("°", "") : rawValue;
 
   return (
     <div
@@ -95,6 +101,7 @@ export const WeatherClockNode = ({
               style={{ fontSize: valuePx }}
             >
               {value}
+              {isTemp && <DegreeMark scale={0.9} />}
             </span>
           </div>
         </HoverCardTrigger>

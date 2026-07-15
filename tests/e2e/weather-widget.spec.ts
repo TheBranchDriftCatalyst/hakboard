@@ -95,6 +95,56 @@ test.describe("weather clock design", () => {
     expect(measuredSlot).toBe(expectedSlot);
   });
 
+  test("arbitrary city (not in local cache) resolves via geocoding", async ({ page }) => {
+    // Mock the geocoding endpoint so we don't hit the network with a real
+    // key/city dependency in CI. Return coords for a fake "Zephyria".
+    await page.route("**/geo/1.0/direct**", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify([
+          { name: "Zephyria", lat: 47.6, lon: -122.3, state: "WA", country: "US" },
+        ]),
+      });
+    });
+    // Also mock the weather endpoint so the test is fully deterministic —
+    // otherwise the widget would hit the real onecall API with (47.6, -122.3).
+    await page.route("**/data/3.0/onecall**", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          lat: 47.6, lon: -122.3, timezone: "America/Los_Angeles", timezone_offset: -25200,
+          current: {
+            dt: Math.floor(Date.now() / 1000),
+            sunrise: 0, sunset: 0, temp: 42, feels_like: 40, pressure: 1013,
+            humidity: 88, dew_point: 40, uvi: 1, clouds: 90, visibility: 10000,
+            wind_speed: 8, wind_deg: 180,
+            weather: [{ id: 804, main: "Clouds", description: "overcast clouds", icon: "04d" }],
+          },
+          hourly: Array.from({ length: 12 }, (_, i) => ({
+            dt: Math.floor(Date.now() / 1000) + i * 3600,
+            temp: 40 + i, feels_like: 38 + i, pressure: 1013, humidity: 85,
+            dew_point: 38, uvi: 1, clouds: 90, visibility: 10000,
+            wind_speed: 8, wind_deg: 180,
+            weather: [{ id: 804, main: "Clouds", description: "overcast clouds", icon: "04d" }],
+          })),
+          daily: [],
+        }),
+      });
+    });
+
+    await goto(page);
+    await page.getByRole("button", { name: /open widget controls/i }).click();
+    await page.getByRole("button", { name: /^weather$/i }).click();
+    await page.getByLabel(/^city$/i).fill("Zephyria");
+
+    // Value in the center should update to reflect the mocked payload (42°).
+    await expect(page.getByTestId("weather-clock-value")).toContainText("42", {
+      timeout: 5000,
+    });
+  });
+
   test("metric label rotates when metricRotationInterval elapses", async ({ page }) => {
     await goto(page);
     await page.getByRole("button", { name: /open widget controls/i }).click();

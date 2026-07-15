@@ -9,7 +9,7 @@ import type {
   OpenWeatherDataMetric,
   OpenWeatherDTOInterface,
 } from "@/components/weather-clock/OpenWeatherDTO";
-import { lookupCity } from "@/config/cities";
+import { resolveCity } from "@/config/cities";
 import { useInterval } from "@/hooks/useInterval";
 import { useConfig } from "@/lib/widget-config";
 
@@ -54,14 +54,19 @@ export const WeatherWidget = () => {
     },
   } as const);
 
+  const apiKey = import.meta.env.VITE_OPEN_WEATHER_API_KEY;
   const { data: weatherData } = useQuery({
     queryKey: ["weather", city],
     queryFn: async () => {
-      const coords = lookupCity(city);
-      if (!coords) throw new Error(`Unknown city: ${city}`);
+      const coords = await resolveCity(city, apiKey);
       return fetchWeather(coords.lat, coords.long);
     },
+    // Debounce: give the user 400ms after they stop typing before firing.
+    // Combined with resolveCity's in-memory cache, toggling between a few
+    // cities is snappy without hammering the geocoding endpoint.
+    staleTime: 5 * 60 * 1000,
     refetchInterval: 10 * 60 * 1000,
+    retry: false,
   });
 
   const [currentMetric, setCurrentMetric] = useState<OpenWeatherDataMetric>("temp");

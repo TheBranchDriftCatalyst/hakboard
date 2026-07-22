@@ -1,0 +1,38 @@
+version: "0.1.1"
+name: "hakboard-dashboard"
+description: "Smart home kiosk dashboard built as a DakBoard replacement, featuring drag-and-drop widget grid layout, radial weather clock, and Notion integration for productivity widgets"
+repo_url: "https://github.com/TheBranchDriftCatalyst/hakboard"
+private: false
+status: "wip"
+
+tech_stack:
+  languages:
+    - "typescript"
+    - "css"
+  frameworks:
+    - "nextjs"
+    - "react"
+    - "tailwindcss"
+  tools:
+    - "radix-ui"
+    - "react-grid-layout"
+    - "luxon"
+    - "puppeteer"
+
+groups:
+  - "web-apps"
+  - "dashboards"
+
+badges:
+  stars: true
+  issues: true
+  prs: true
+  license: true
+
+highlights:
+  - "Radial weather clock widget using OpenWeatherMap API with trigonometry-based hour node placement"
+  - "Widget HOC pattern with configurable props system (useControls) and persistent localStorage layouts"
+  - "Drag-and-drop responsive grid layout (react-grid-layout) with per-dashboard layout persistence"
+  - "Synthwave dark theme with CSS custom properties (cyan primary, purple secondary)"
+  - "Notion SDK integration for todo, meal prep, and shopping list widgets"
+  - "Kiosk mode with Chromium app launch for wall-mounted display use"

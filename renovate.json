@@ -1,0 +1,22 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard",
+    ":semanticCommits",
+    ":semanticPrefixFixDepsChoreOthers",
+    "group:allNonMajor",
+    "schedule:weekly"
+  ],
+  "timezone": "America/Los_Angeles",
+  "prConcurrentLimit": 3,
+  "prHourlyLimit": 2,
+  "labels": ["dependencies"],
+  "packageRules": [
+    {
+      "description": "Isolate major updates so each gets its own review",
+      "matchUpdateTypes": ["major"],
+      "labels": ["dependencies", "major-update"]
+    }
+  ]
+}
